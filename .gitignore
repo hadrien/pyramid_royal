@@ -1,0 +1,25 @@
+*.py[co]
+
+# Packages
+*.egg
+*.egg-info
+dist
+build
+eggs
+parts
+bin
+var
+sdist
+
+# Installer logs
+pip-log.txt
+
+# Unit test / coverage reports
+.coverage
+.noseids
+velo/.noseids
+velo/coverage.xml
+velo/tests/.noseids
+velo/tests/coverage.xml
+coverage.xml
+nosetests.xml

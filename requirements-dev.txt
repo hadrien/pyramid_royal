@@ -1,0 +1,19 @@
+# build deps
+d2to1
+
+# test deps
+coverage
+mock
+nose
+nosexcover
+yanc
+webtest
+ipdb
+
+# doc deps
+sphinx
+
+# server deps
+pastescript
+waitress
+pyramid_debugtoolbar
