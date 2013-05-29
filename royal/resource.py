@@ -1,5 +1,3 @@
-import onctuous
-
 from pyramid.decorator import reify
 from pyramid.traversal import find_root
 
@@ -91,7 +89,8 @@ class Collection(Base):
     def resource_name(self):
         return self.collection_name
 
-    index = None
+    def index(self, params):
+        raise exc.MethodNotAllowed(self)
 
     def create(self, params):
         raise exc.MethodNotAllowed(self)
