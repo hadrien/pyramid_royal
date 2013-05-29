@@ -1,3 +1,5 @@
+import onctuous
+
 from pyramid.decorator import reify
 from pyramid.traversal import find_root
 
@@ -33,6 +35,10 @@ class Base(object):
     @reify
     def root(self):
         return find_root(self)
+
+    @property
+    def db(self):
+        return self.request.mongo_db
 
     @reify
     def request(self):
@@ -70,14 +76,41 @@ class Resource(Base):
     def delete(self):
         raise exc.MethodNotAllowed(self)
 
+    @property
+    def resource_name(self):
+        return self.collection_name[0:-1]
+
+    @property
+    def links(self):
+        return {'self': self}
+
 
 class Collection(Base):
 
-    def index(self):
-        raise exc.MethodNotAllowed(self)
+    @property
+    def resource_name(self):
+        return self.collection_name
 
-    def create(self):
+    index = None
+
+    def create(self, params):
         raise exc.MethodNotAllowed(self)
 
     def delete(self):
         raise exc.MethodNotAllowed(self)
+
+
+class PaginatedResult(object):
+
+    def __init__(self, parent, iterator, resource_cls, total):
+        self.parent = parent
+        self.iterator = iterator
+        self.resource_cls = resource_cls
+        self.total = total
+
+    def __iter__(self):
+        return self.next()
+
+    def next(self):
+        item = self.iterator.next()
+        yield self.resource_cls(item._id, self.parent, model=item)
