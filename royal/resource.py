@@ -101,10 +101,11 @@ class Collection(Base):
 
 class PaginatedResult(object):
 
-    def __init__(self, parent, iterator, resource_cls, total):
+    def __init__(self, parent, iterator, resource_cls, query, total):
         self.parent = parent
         self.iterator = iterator
         self.resource_cls = resource_cls
+        self.query = query
         self.total = total
 
     def __iter__(self):

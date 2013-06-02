@@ -83,21 +83,24 @@ class CollectionView(BaseView):
         schema = Schema({})
         schema.schema.update(CollectionView.index_schema)
         if hasattr(self.context, 'index_schema'):
-            schema.schema.update(self.context.index_schema)
+            schema.schema.update(self.context.index_schema.schema)
 
         query = schema(dict(self.request.GET))
         result = self.context.index(**query)
 
-        items = [self.wrap_dict(item, item.model) for item in result]
+        items = [self.wrap_dict(item, item.show()) for item in result]
 
         return {
             self.context.collection_name: items,
-            'links': self.get_paginated_links(query, result.total),
+            'links': self.get_paginated_links(result.query, result.total),
             }
 
     @view_config(request_method='POST', permission='edit')
     def create(self):
-        item = self.context.create(get_params(self.request))
+        params = get_params(self.request)
+        if hasattr(self.context, 'create_schema'):
+            params = self.context.create_schema(params)
+        item = self.context.create(**params)
         item_url = self.request.resource_url(item)
         self.request.response.headers['Location'] = item_url
         self.request.response.status_int = HTTPCreated.code
@@ -140,7 +143,7 @@ def log_error_dict(view_callable):
     @wraps(view_callable)
     def wrapper(context, request):
         result = view_callable(context, request)
-        log.debug('%s: %s', type(context), result)
+        log.debug('%s: %s', type(context), result, exc_info=True)
         return result
     return wrapper
 
