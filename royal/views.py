@@ -40,7 +40,7 @@ class BaseView(object):
 
 def get_params(request):
     try:
-        return request.POST
+        return request.POST.mixed()
     except Exception:
         log.debug('Error parsing POST', exc_info=True)
         raise HTTPBadRequest('Error parsing request parameters')

@@ -89,7 +89,7 @@ class Collection(Base):
     def resource_name(self):
         return self.collection_name
 
-    def index(self, params):
+    def index(self, *args, **kwargs):
         raise exc.MethodNotAllowed(self)
 
     def create(self, params):
