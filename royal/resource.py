@@ -36,6 +36,7 @@ class Base(object):
 
     @property
     def db(self):
+        # XXX Remove: this is specific to application not framework
         return self.request.mongo_db
 
     @reify
@@ -109,8 +110,5 @@ class PaginatedResult(object):
         self.total = total
 
     def __iter__(self):
-        return self.next()
-
-    def next(self):
-        item = self.iterator.next()
-        yield self.resource_cls(item._id, self.parent, model=item)
+        for item in self.iterator:
+            yield self.resource_cls(item._id, self.parent, model=item)

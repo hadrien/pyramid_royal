@@ -50,30 +50,32 @@ def get_params(request):
 class CollectionView(BaseView):
 
     index_schema = {
-        Required('page', 0): All(Coerce(int), InRange(min=0)),
-        Required('page_size', 20): All(Coerce(int), InRange(min=1)),
+        Required('offset', 0): All(Coerce(int), InRange(min=0)),
+        Required('limit', 20): All(Coerce(int), InRange(min=1)),
         }
 
     def get_paginated_links(self, query, total_items):
         links = {}
         links['self'] = self.resource_url(query=query)
-        page = query['page']
-        page_size = query['page_size']
+        offset = query['offset']
+        limit = query['limit']
 
-        query['page'] = 0
+        query['offset'] = 0
         links['first'] = self.resource_url(query=query)
 
-        query['page'] = max(0, total_items / page_size - 1)
+        offset_last_page = (total_items / limit - 1) * limit
+
+        query['offset'] = max(0, offset_last_page)
         links['last'] = self.resource_url(query=query)
 
-        has_previous = page > 0
+        has_previous = offset > 0
         if has_previous:
-            query['page'] = page - 1
+            query['offset'] = offset - 1
             links['previous'] = self.resource_url(query=query)
 
-        has_next = total_items > (page + 1) * page_size
+        has_next = total_items > offset + limit
         if has_next:
-            query['page'] = page + 1
+            query['offset'] = offset + 1
             links['next'] = self.resource_url(query=query)
 
         return links
@@ -85,7 +87,7 @@ class CollectionView(BaseView):
         if hasattr(self.context, 'index_schema'):
             schema.schema.update(self.context.index_schema.schema)
 
-        query = schema(dict(self.request.GET))
+        query = schema(dict(self.request.GET.mixed()))
         result = self.context.index(**query)
 
         items = [self.wrap_dict(item, item.show()) for item in result]
@@ -104,7 +106,7 @@ class CollectionView(BaseView):
         item_url = self.request.resource_url(item)
         self.request.response.headers['Location'] = item_url
         self.request.response.status_int = HTTPCreated.code
-        return self.wrap_dict(item, item.model)
+        return self.wrap_dict(item, item.show())
 
 
 @view_defaults(context=resource.Resource, renderer='royal')
