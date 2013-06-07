@@ -1,5 +1,9 @@
-0.3
+0.5
 ---
+
+- Breaking change: Pages parameters are not anymore page & page_size but offset
+  and limit. It is more developer and db friendly.
+
 
 0.2
 ---
