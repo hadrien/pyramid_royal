@@ -1,66 +1,52 @@
+from zope.interface import implementer
+
 from pyramid.decorator import reify
 from pyramid.traversal import find_root
 
 from royal import exceptions as exc
+from royal.interfaces import (
+    IBase,
+    ICollection,
+    IPaginatedResult,
+    IResource,
+    IRoot,
+    )
 
 
+@implementer(IBase)
 class Base(object):
 
-    def __init__(self, name, parent, model=None):
+    def __init__(self, name, parent):
         self.__name__ = name
         self.__parent__ = parent
-        self.model = model
-
-        self.ancestors = {}
-
-        has_parent_ancestors = (parent is not None
-                                and parent.ancestors is not None)
-
-        if has_parent_ancestors:
-            self.ancestors.update(parent.new_ancestors())
-
-        is_collection = isinstance(self, Collection)
-
-        if is_collection:
-            self.collection_name = name
-        else:
-            parent_is_collection = parent and isinstance(parent, Collection)
-            if parent_is_collection:
-                self.collection_name = parent.__name__
-            else:
-                self.collection_name = name
 
     @reify
     def root(self):
         return find_root(self)
 
     @property
-    def db(self):
-        # XXX Remove: this is specific to application not framework
-        return self.request.mongo_db
-
-    @reify
-    def request(self):
-        return self.root.request
-
-    def new_ancestors(self):
-        ancestors = self.ancestors.copy()
-        if isinstance(self, Resource):
-            ancestors[self.collection_name] = self
-        return ancestors
-
-    @property
     def links(self):
         return {'self': self}
 
 
+@implementer(IRoot)
 class Root(Base):
+    children = {}
 
     def __init__(self, request):
         super(Root, self).__init__('', None)
         self.request = request
 
+    def show(self):
+        return None
 
+    @property
+    def links(self):
+        return dict((name, cls(name, self))
+                    for name, cls in self.children.iteritems())
+
+
+@implementer(IResource)
 class Resource(Base):
 
     def show(self):
@@ -75,20 +61,22 @@ class Resource(Base):
     def delete(self):
         raise exc.MethodNotAllowed(self)
 
-    @property
+    @reify
     def resource_name(self):
-        return self.collection_name[0:-1]
+        """Resource name used at rendering phase.
+        By default, it is collection name without last s.
+        """
+        if self.__parent__ is not None:
+            return self.__parent__.__name__[0:-1]
+        return self.__name__
 
     @property
     def links(self):
         return {'self': self}
 
 
+@implementer(ICollection)
 class Collection(Base):
-
-    @property
-    def resource_name(self):
-        return self.collection_name
 
     def index(self, *args, **kwargs):
         raise exc.MethodNotAllowed(self)
@@ -100,6 +88,7 @@ class Collection(Base):
         raise exc.MethodNotAllowed(self)
 
 
+@implementer(IPaginatedResult)
 class PaginatedResult(object):
 
     def __init__(self, parent, iterator, resource_cls, query, total):

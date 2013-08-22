@@ -8,3 +8,5 @@ nose
 nosexcover
 yanc
 webtest
+
+pyramid_mongokit

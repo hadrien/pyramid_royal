@@ -5,9 +5,11 @@ from decimal import Decimal
 import json
 import logging
 
-from bson import BSON
-from bson.objectid import ObjectId
-
+try:
+    from bson import BSON
+    from bson.objectid import ObjectId
+except ImportError:
+    pass
 
 log = logging.getLogger(__name__)
 

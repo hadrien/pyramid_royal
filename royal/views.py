@@ -13,8 +13,8 @@ from pyramid.httpexceptions import (
     HTTPMethodNotAllowed,
     )
 
-from . import exceptions as exc
-from . import resource
+from royal import exceptions as exc
+from royal import interfaces
 
 log = logging.getLogger(__name__)
 
@@ -30,9 +30,11 @@ class BaseView(object):
         self.request = request
 
     def wrap_dict(self, item, item_dict):
-        links = dict((k, self.request.resource_url(v))
-                     for k, v in item.links.iteritems())
-        return {'links': links, item.resource_name: item_dict}
+        result = {'links': dict((k, self.request.resource_url(v))
+                                for k, v in item.links.iteritems())}
+        if item_dict:
+            result.update({item.resource_name: item_dict})
+        return result
 
     def resource_url(self, *elements, **kw):
         return self.request.resource_url(self.context, *elements, **kw)
@@ -46,7 +48,7 @@ def get_params(request):
         raise HTTPBadRequest('Error parsing request parameters')
 
 
-@view_defaults(context=resource.Collection, renderer='royal')
+@view_defaults(context=interfaces.ICollection, renderer='royal')
 class CollectionView(BaseView):
 
     index_schema = {
@@ -80,7 +82,7 @@ class CollectionView(BaseView):
 
         return links
 
-    @view_config(request_method='GET')
+    @view_config(request_method='GET', permission='index')
     def index(self):
         schema = Schema({})
         schema.schema.update(CollectionView.index_schema)
@@ -93,15 +95,16 @@ class CollectionView(BaseView):
         items = [self.wrap_dict(item, item.show()) for item in result]
 
         return {
-            self.context.collection_name: items,
+            self.context.__name__: items,
             'links': self.get_paginated_links(result.query, result.total),
             }
 
-    @view_config(request_method='POST', permission='edit')
+    @view_config(request_method='POST', permission='create')
     def create(self):
         params = get_params(self.request)
         if hasattr(self.context, 'create_schema'):
             params = self.context.create_schema(params)
+
         item = self.context.create(**params)
         item_url = self.request.resource_url(item)
         self.request.response.headers['Location'] = item_url
@@ -109,17 +112,20 @@ class CollectionView(BaseView):
         return self.wrap_dict(item, item.show())
 
 
-@view_defaults(context=resource.Resource, renderer='royal')
+@view_defaults(context=interfaces.IResource, renderer='royal')
 class ResourceView(BaseView):
 
     @view_config(request_method='GET', permission='show')
+    @view_config(request_method='GET', permission='show',
+                 context=interfaces.IRoot)
     def show(self):
         item = self.context.show()
         return self.wrap_dict(self.context, item)
 
     @view_config(request_method='PUT', permission='put')
     def put(self):
-        item = self.context.put(get_params(self.request))
+        params = get_params(self.request)
+        item = self.context.put(**params)
         return self.wrap_dict(self.context, item)
 
     @view_config(request_method='PATCH', permission='patch')
@@ -134,9 +140,7 @@ class ResourceView(BaseView):
 
 
 @view_config(context=exc.MethodNotAllowed)
-@view_config(context=resource.Collection)
-@view_config(context=resource.Resource)
-@view_config(context=resource.Root)
+@view_config(context=interfaces.IBase)
 def not_allowed(context, request):
     return HTTPMethodNotAllowed()
 
@@ -150,8 +154,7 @@ def log_error_dict(view_callable):
     return wrapper
 
 
-@view_config(context=exc.NotFound, renderer='royal')
-@log_error_dict
+@view_config(context=exc.NotFound, renderer='royal', decorator=log_error_dict)
 def item_not_found(context, request):
     request.response.status_int = HTTPNotFound.code
     return {
@@ -160,8 +163,7 @@ def item_not_found(context, request):
         }
 
 
-@view_config(context=exc.Conflict, renderer='royal')
-@log_error_dict
+@view_config(context=exc.Conflict, renderer='royal', decorator=log_error_dict)
 def conflict(context, request):
     request.response.status_int = HTTPConflict.code
     return {
@@ -171,8 +173,7 @@ def conflict(context, request):
 
 
 @view_config(context='onctuous.errors.Invalid',
-             renderer='royal')
-@log_error_dict
+             renderer='royal', decorator=log_error_dict)
 def invalid_parameters(context, request):
     request.response.status_int = HTTPBadRequest.code
     return {
@@ -181,8 +182,8 @@ def invalid_parameters(context, request):
         }
 
 
-@view_config(context=exc.BadParameter, renderer='royal')
-@log_error_dict
+@view_config(context=exc.BadParameter, renderer='royal',
+             decorator=log_error_dict)
 def bad_parameter(context, request):
     request.response.status_int = HTTPBadRequest.code
     return {
@@ -191,8 +192,7 @@ def bad_parameter(context, request):
         }
 
 
-@view_config(context=Exception, renderer='royal')
-@log_error_dict
+@view_config(context=Exception, renderer='royal', decorator=log_error_dict)
 def exception(context, request):
     request.response.status_int = HTTPInternalServerError.code
     return {

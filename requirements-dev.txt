@@ -1,7 +1,8 @@
+-r requirements-test.txt
 
 ipdb
 
-sphinx
-
 waitress
 pyramid_debugtoolbar
+Paste
+PasteDeploy

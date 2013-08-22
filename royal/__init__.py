@@ -1,18 +1,10 @@
-from royal.resource import (
-    Collection,
-    PaginatedResult,
-    Resource,
-    Root,
-    )
+from royal.resource import Root, Collection, Resource, PaginatedResult
 
-__all__ = [
-    "Collection",
-    "PaginatedResult",
-    "Resource",
-    "Root",
-    ]
+
+__all__ = ['Root', 'Collection', 'Resource', 'PaginatedResult']
 
 
 def includeme(config):
     config.include('royal.renderer')
     config.include('royal.views')
+    config.commit()

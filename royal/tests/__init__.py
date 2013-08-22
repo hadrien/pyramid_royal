@@ -1,0 +1,5 @@
+
+
+
+def setupPackage():
+    import royal
