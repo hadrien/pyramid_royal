@@ -1,3 +1,9 @@
+0.5.1
+-----
+
+- Add Base.__getitem__ which gets children from self.children
+
+
 0.5
 ---
 

@@ -16,6 +16,8 @@ from royal.interfaces import (
 @implementer(IBase)
 class Base(object):
 
+    children = {}
+
     def __init__(self, name, parent):
         self.__name__ = name
         self.__parent__ = parent
@@ -27,6 +29,9 @@ class Base(object):
     @property
     def links(self):
         return {'self': self}
+
+    def __getitem__(self, key):
+        return self.children[key](key, self)
 
 
 @implementer(IRoot)
