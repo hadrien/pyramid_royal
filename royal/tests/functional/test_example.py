@@ -22,7 +22,7 @@ class Test(unittest.TestCase):
         return webtest.TestApp(self.config.make_wsgi_app())
 
     def test_root(self):
-        print self.app.get('/')
+        self.app.get('/')
 
     def test_users_index(self):
         self.app.get('/users')
@@ -34,4 +34,3 @@ class Test(unittest.TestCase):
             '/users/hadrien/photos',
             upload_files=[(u'image', u'image.gif', image_gif.read())]
             )
-        print result
