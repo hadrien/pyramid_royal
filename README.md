@@ -1,6 +1,5 @@
--------------
 pyramid_royal
--------------
+=============
 
 Pyramid extension for writing RESTful web applications.
 
