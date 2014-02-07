@@ -13,7 +13,6 @@ class Test(unittest.TestCase):
         self.assertEqual(b.__name__, name)
         self.assertEqual(parent, b.__parent__)
         self.assertIs(root, b.root)
-        self.assertEqual({'self': b}, b.links)
         return b
 
     def test_base(self):
@@ -44,18 +43,18 @@ class Test(unittest.TestCase):
             collection.delete()
 
     def test_resource(self):
-        from royal.resource import Collection, Resource, Root
+        from royal.resource import Collection, Item, Root
         from royal.exceptions import MethodNotAllowed
         request = DummyRequest()
         root = Root(request)
         c = Collection('users', root)
-        resource = self.check_assertions(Resource, 'hadrien', parent=c)
+        resource = self.check_assertions(Item, 'hadrien', parent=c)
 
         with self.assertRaises(MethodNotAllowed):
             resource.show()
         with self.assertRaises(MethodNotAllowed):
             resource.delete()
         with self.assertRaises(MethodNotAllowed):
-            resource.put()
+            resource.replace()
         with self.assertRaises(MethodNotAllowed):
-            resource.patch()
+            resource.update()

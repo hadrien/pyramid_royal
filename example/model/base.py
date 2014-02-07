@@ -1,5 +1,6 @@
 import mongokit
 
+from bson.objectid import ObjectId
 from pymongo import DESCENDING
 
 
@@ -9,11 +10,28 @@ class Document(mongokit.Document):
 
     @classmethod
     def get_newests(cls, db, offset, limit):
-        skip = offset * limit
+        # do not use skip on production
         collection = db[cls.__name__]
         return (
             collection.find()
                       .sort('_id', DESCENDING)
                       .limit(limit)
-                      .skip(skip)
+                      .skip(offset)
         )
+
+    @classmethod
+    def get_by(cls, db, **kw):
+        collection = db[cls.__name__]
+        return collection.find(kw)
+
+    @classmethod
+    def get_one(cls, db, **kw):
+        collection = db[cls.__name__]
+        return collection.find_one(kw)
+
+    @classmethod
+    def get_by_id(cls, db, _id):
+        if not isinstance(_id, ObjectId):
+            _id = ObjectId(_id)
+        collection = db[cls.__name__]
+        return collection.find_one({_id: _id})

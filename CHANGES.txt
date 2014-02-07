@@ -1,3 +1,9 @@
+0.6
+---
+
+- Breaking changes: TBD
+
+
 0.5.1
 -----
 
@@ -22,6 +28,7 @@
 - Initial version
 - royal renderer able to return bson or json.
 - royal.includeme adds royal renderer and views.
-- royal.resource.PaginatedResult which permits Collection.index to return paginated results.
+- royal.resource.PaginatedResult which permits Collection.index to return
+  paginated results.
 - royal.views with default views for Collection and Resource.
 - CollectionView.index does automatic pagination.

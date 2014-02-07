@@ -1,17 +1,17 @@
 import os
 import logging
+import unittest
 
+import webtest
+
+from pyramid.config import Configurator
+from pyramid.decorator import reify
 from pyramid_mongokit import SingleDbConnection
-
-from example.model import User
 
 log = logging.getLogger(__name__)
 
 
 def setup_package():
-    os.environ['MONGO_URI'] = 'mongodb://localhost'
-    os.environ['MONGO_DB_NAME'] = 'royal_example'
-
     connection = new_connection()
     setup_example_fixtures(connection)
     connection.close()
@@ -25,15 +25,44 @@ def teardown_package():
     connection.close()
 
 
+class TestBase(unittest.TestCase):
+
+    @reify
+    def config(self):
+        from example import includeme
+        _config = Configurator(settings={})
+        _config.include(includeme)
+        self.addCleanup(delattr, self, 'config')
+        return _config
+
+    @reify
+    def app(self):
+        self.addCleanup(delattr, self, 'app')
+        return webtest.TestApp(self.config.make_wsgi_app())
+
+    @reify
+    def db(self):
+        self._db = new_connection()
+        self.addCleanup(self._db.close)
+        self.addCleanup(delattr, self, 'db')
+        return self._db.get_db()
+
+
 def new_connection():
+    from example.model import User, Photo
     db_prefix = ''
-    return SingleDbConnection(os.environ['MONGO_DB_NAME'], db_prefix,
-                              os.environ['MONGO_URI'])
+    connection = SingleDbConnection(os.environ['MONGO_DB_NAME'], db_prefix,
+                                    os.environ['MONGO_URI'])
+    connection.register(User)
+    connection.register(Photo)
+    connection.generate_index(User)
+    connection.generate_index(Photo)
+    return connection
 
 
 def setup_example_fixtures(connection):
-    connection.register(User)
-    connection.generate_index(User)
+    from example.model import User
+
     try:
         User.create(connection.db, u'hadrien', u'hadrien@ectobal.com')
     except Exception:

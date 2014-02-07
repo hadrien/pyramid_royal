@@ -1,5 +1,7 @@
-
+import os
 
 
 def setupPackage():
-    import royal
+    os.environ['MONGO_URI'] = 'mongodb://localhost'
+    os.environ['MONGO_DB_NAME'] = 'royal_example'
+    os.environ['MONGO_DB_PREFIX'] = ''

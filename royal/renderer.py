@@ -47,7 +47,7 @@ class Factory(object):
     formatters = OrderedDict([
         ('application/json', json_dumps),
         ('application/bson', bson_dumps),
-        ])
+    ])
 
     def __init__(self, info):
         self.info = info

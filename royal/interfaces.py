@@ -1,35 +1,32 @@
 # -*- coding: utf-8 -*-
-from zope.interface import (
-    Attribute,
-    Interface,
-    )
+from zope.interface import Attribute, Interface
 
 
 class IBase(Interface):
-    __name__ = Attribute('The __name__ attribute should be the name with which'
-                         'a resource’s parent refers to the resource via'
-                         '__getitem__.')
-    __parent__ = Attribute('Should be a reference to the resource’s parent'
+    "Base for all context class."
+    __name__ = Attribute('The __name__ attribute should be the name with '
+                         'which a resource’s parent refers to the resource '
+                         'via __getitem__.')
+    __parent__ = Attribute('Should be a reference to the resource’s parent '
                            'resource instance in the tree')
 
 
 class IRoot(IBase):
+    "Root factory"
     request = Attribute('The request object.')
-
-
-class IResource(IBase):
-
-    resource_name = Attribute('Resource name')
     links = Attribute('A mapping which gives relationship with other '
                       'resources.')
 
-    def show():
+
+class IItem(IBase):
+
+    def show(params):
         "GET /items/{id}"
 
-    def put():
+    def update(params):
         "PUT /items/{id}"
 
-    def patch():
+    def patch(params):
         "PATCH /items/{id}"
 
     def delete():
@@ -38,7 +35,7 @@ class IResource(IBase):
 
 class ICollection(IBase):
 
-    def index(offset, limit, *args, **kwargs):
+    def index(offset, limit, params):
         "GET /items?offset=0&limit=20"
 
     def create(params):
@@ -48,8 +45,7 @@ class ICollection(IBase):
         "DELETE /items"
 
 
-class IPaginatedResult(Interface):
-    total = Attribute('total of items or None')
+class IResourceConfigurator(Interface):
 
-    def __iter__(self):
-        ""
+    def add_resource(dot_path):
+        "Add a resource by its dot notation: 'apps.users' is apps/{id}/users"
