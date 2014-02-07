@@ -10,7 +10,5 @@ class Root(royal.Root):
         return self.request.mongo_connection.get_db()
 
     def show(self):
-        return {
-            'users': self['users'].url(),
-            'photos': self['photos'].url()
-        }
+        return {name: {'href': cls(name, self).url()}
+                for name, cls in self.children.iteritems()}

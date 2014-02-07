@@ -95,11 +95,6 @@ class Root(Base):
         super(Root, self).__init__('', None)
         self.request = request
 
-    @property
-    def links(self):
-        return dict((name, cls(name, self))
-                    for name, cls in self.children.iteritems())
-
 
 @implementer(IItem)
 class Item(Base):
