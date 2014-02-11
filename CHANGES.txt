@@ -2,6 +2,8 @@
 ---
 
 - Breaking changes: TBD
+- Move onctuous away in favor of voluptuous
+
 
 
 0.5.1

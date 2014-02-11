@@ -9,7 +9,7 @@ from pyramid.httpexceptions import (
     HTTPInternalServerError,
     HTTPNotFound,
     HTTPMethodNotAllowed,
-    )
+)
 
 from royal import exceptions as exc
 from royal import interfaces
@@ -150,7 +150,7 @@ def conflict(context, request):
     }
 
 
-@view_config(context='onctuous.errors.Invalid',
+@view_config(context='voluptuous.MultipleInvalid',
              renderer='royal', decorator=log_error_dict)
 def invalid_parameters(context, request):
     request.response.status_int = HTTPBadRequest.code

@@ -15,7 +15,7 @@ def includeme(config):
 
     if utility is None:
         utility = ResourceConfigurator()
-        config.registry.registerUtility(utility)
+        config.registry.registerUtility(utility, name=u'')
         config.add_directive('add_resource', utility.add_resource)
 
 
@@ -91,7 +91,7 @@ class ResourceConfigurator(object):
         self.definitions[resource_path] = definition
 
         # Actions must be taken from top-level resource to leaf after
-        # root_factory has been set
+        # root_factory has been set at order=0
         # let's use order parameter:
         order = 1 + resource_path.count('.')
         # 'app.user.message' would be at order 3
@@ -104,7 +104,6 @@ class ResourceConfigurator(object):
 
     def register_resource(self, config, resource_path):
         definition = self.definitions[resource_path]
-
         parent_def = (self.definitions[definition.parent]
                       if definition.parent
                       else config.registry.queryUtility(IRootFactory))
@@ -120,5 +119,5 @@ class ResourceConfigurator(object):
         if all((definition.collection_cls, definition.item_cls)):
             definition.collection_cls.item_cls = definition.item_cls
 
-        log.debug("add resource='%s' parent_def='%s' parent_cls=%s",
+        log.debug('add resource=%s parent_def=%s parent_cls=%s',
                   resource_path, parent_def, parent_cls)

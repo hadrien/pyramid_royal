@@ -19,7 +19,7 @@ def includeme(config):
 
 
 def json_dumps(o):
-    return json.dumps(o, cls=JSONEncoder)
+    return json.dumps(o, cls=JSONEncoder, indent=4)
 
 
 def json_loads(s):

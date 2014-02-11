@@ -27,6 +27,8 @@ def teardown_package():
 
 class TestBase(unittest.TestCase):
 
+    maxDiff = None
+
     @reify
     def config(self):
         from example import includeme

@@ -61,7 +61,7 @@ class Test(TestBase):
             '/users/hadrien/photos',
             upload_files=[(u'image', u'image.gif', image_gif.read())]
         )
-
+        print result
         photo = Photo.get_one(self.db, author='hadrien')
         location = 'http://localhost/photos/%s/' % str(photo._id)
 
