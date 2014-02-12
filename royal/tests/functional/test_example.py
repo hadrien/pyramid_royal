@@ -18,6 +18,12 @@ class Test(TestBase):
             user = getattr(self, 'user%s' % i)
             user.delete()
 
+    def _add_single_user(self, name, email):
+        from example.model import User
+        user = User.create(self.db, unicode(name), unicode(email))
+        self.addCleanup(user.delete)
+        return user
+
     def test_root(self):
         response = self.app.get('/')
         result = response.json
@@ -84,15 +90,13 @@ class Test(TestBase):
         self.assertEqual(expected, result.json)
 
     def test_replace_user(self):
-        from example.model import User
-        user = User.create(self.db, u'franky', u'franky@email.com')
         image_gif = pkg_resources.resource_stream('royal.tests.functional',
                                                   'image.gif')
+        user = self._add_single_user('franky', 'franky@email.com')
         result = self.app.post(
             '/users/franky/photos',
             upload_files=[(u'image', u'image.gif', image_gif.read())]
         )
-        photo_id = result.json['_id']
         result = self.app.put('/users/franky/', {
             'username': 'micheal',
             'email': 'micheal@email.com',
@@ -110,3 +114,61 @@ class Test(TestBase):
         result = self.app.get('/users/micheal/photos/')
         self.assertEqual(1, len(result.json['photos']))
 
+    def test_replace_user_with_hack1(self):
+        user = self._add_single_user('franky', 'franky@email.com')
+        result = self.app.post('/users/franky/', {
+            'username': 'micheal',
+            'email': 'micheal@email.com',
+            '_method': 'put',
+        })
+        expected = {
+            'href': 'http://localhost/users/micheal/',
+            'username': 'micheal',
+            'email': 'micheal@email.com',
+            '_id': str(user['_id']),
+            'photos': {
+                'href': 'http://localhost/users/micheal/photos/'
+            },
+        }
+        self.assertEqual(expected, result.json)
+
+    def test_replace_user_with_request_param_hack(self):
+        user = self._add_single_user('franky', 'franky@email.com')
+        result = self.app.post('/users/franky/', {
+            'username': 'micheal',
+            'email': 'micheal@email.com',
+            '_method': 'put',
+        })
+        expected = {
+            'href': 'http://localhost/users/micheal/',
+            'username': 'micheal',
+            'email': 'micheal@email.com',
+            '_id': str(user['_id']),
+            'photos': {
+                'href': 'http://localhost/users/micheal/photos/'
+            },
+        }
+        self.assertEqual(expected, result.json)
+
+    def test_replace_user_with_with_header_hack(self):
+        user = self._add_single_user('franky', 'franky@email.com')
+        headers = {'X-HTTP-Method-Override': 'PUT'}
+        result = self.app.post(
+            '/users/franky/',
+            {
+                'username': 'micheal',
+                'email': 'micheal@email.com',
+                '_method': 'put',
+            },
+            headers=headers
+        )
+        expected = {
+            'href': 'http://localhost/users/micheal/',
+            'username': 'micheal',
+            'email': 'micheal@email.com',
+            '_id': str(user['_id']),
+            'photos': {
+                'href': 'http://localhost/users/micheal/photos/'
+            },
+        }
+        self.assertEqual(expected, result.json)
