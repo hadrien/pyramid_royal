@@ -82,3 +82,31 @@ class Test(TestBase):
             }
         }
         self.assertEqual(expected, result.json)
+
+    def test_replace_user(self):
+        from example.model import User
+        user = User.create(self.db, u'franky', u'franky@email.com')
+        image_gif = pkg_resources.resource_stream('royal.tests.functional',
+                                                  'image.gif')
+        result = self.app.post(
+            '/users/franky/photos',
+            upload_files=[(u'image', u'image.gif', image_gif.read())]
+        )
+        photo_id = result.json['_id']
+        result = self.app.put('/users/franky/', {
+            'username': 'micheal',
+            'email': 'micheal@email.com',
+        })
+        expected = {
+            'href': 'http://localhost/users/micheal/',
+            'username': 'micheal',
+            'email': 'micheal@email.com',
+            '_id': str(user['_id']),
+            'photos': {
+                'href': 'http://localhost/users/micheal/photos/'
+            },
+        }
+        self.assertEqual(expected, result.json)
+        result = self.app.get('/users/micheal/photos/')
+        self.assertEqual(1, len(result.json['photos']))
+

@@ -3,7 +3,7 @@ import royal
 from voluptuous import Schema, Required, Coerce, All, Range
 from royal.exceptions import NotFound
 
-from example.model import User
+from example.model import User, Photo
 
 
 class Collection(royal.Collection):
@@ -52,5 +52,19 @@ class Item(royal.Item):
         user['href'] = self.url()
         user['photos'] = {
             'href': self['photos'].url(),
+        }
+        return user
+
+    def replace(self, params):
+        new_username = params['username']
+        new_email = params['email']
+        user = User.replace(self.root.db, self.name,
+                            new_username=new_username,
+                            new_email=new_email)
+        Photo.replace_author(self.root.db, self.name, new_username)
+        new_item = Item(new_username, self.parent, user)
+        user['href'] = new_item.url()
+        user['photos'] = {
+            'href': new_item['photos'].url()
         }
         return user
