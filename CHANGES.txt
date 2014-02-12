@@ -3,7 +3,7 @@
 
 - Breaking changes: TBD
 - Move onctuous away in favor of voluptuous
-
+- Added method tunneling to permit PUT, and DELETE via POST methods
 
 
 0.5.1
