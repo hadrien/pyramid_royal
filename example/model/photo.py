@@ -11,7 +11,7 @@ class Photo(base.Document):
 
     structure = {
         u'author': unicode,
-        }
+    }
 
     gridfs = {'files': ['image']}
 
@@ -19,7 +19,7 @@ class Photo(base.Document):
 
     indexes = [
         {'fields': u'author'},
-        ]
+    ]
 
     @staticmethod
     def create(db, author, image_file, image_mime_type):
@@ -36,20 +36,8 @@ class Photo(base.Document):
                 raise
         return photo
 
-    def update(db, label, title, description, payload, image, image_mime_type):
-        achievement = db.Achievement.one({'label': label})
-        if achievement is None:
-            achievement = db.Achievement()
-        achievement.label = label
-        achievement.title = title
-        achievement.description = description
-        achievement.payload = payload
-        achievement.save()
-        with achievement.fs.new_file('image') as fp:
-            try:
-                fp.content_type = image_mime_type
-                shutil.copyfileobj(image, fp)
-            except:
-                log.exception('Achievement image file copy on db=%s', db)
-                raise
-        return achievement
+    @staticmethod
+    def replace_author(db, old_author, new_author):
+        spec = {'author': old_author}
+        update = {'$set': {'author': new_author}}
+        db.Photo.find_and_modify(spec, update)

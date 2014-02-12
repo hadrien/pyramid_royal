@@ -8,7 +8,7 @@ from example.resources import photos
 
 class Collection(royal.Collection):
 
-    def index(self, offset, limit):
+    def index(self, offset=0, limit=10):
         cursor = Photo.get_newests(self.root.db, offset, limit,
                                    author=self.parent.name)
         documents = [photos.Item(str(doc._id), self.root, doc).show()

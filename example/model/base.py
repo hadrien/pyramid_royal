@@ -9,11 +9,11 @@ class Document(mongokit.Document):
     use_dot_notation = True
 
     @classmethod
-    def get_newests(cls, db, offset, limit):
+    def get_newests(cls, db, offset, limit, **kwargs):
         # do not use skip on production
         collection = db[cls.__name__]
         return (
-            collection.find()
+            collection.find(kwargs)
                       .sort('_id', DESCENDING)
                       .limit(limit)
                       .skip(offset)
