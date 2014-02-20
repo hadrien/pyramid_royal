@@ -1,9 +1,14 @@
+Changelog
+=========
+
+
 0.6
 ---
 
 - Breaking changes: TBD
 - Move onctuous away in favor of voluptuous
 - Added method tunneling to permit PUT, and DELETE via POST methods
+- TBD: adapt how request body is parsed.
 
 
 0.5.1

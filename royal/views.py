@@ -27,23 +27,14 @@ class BaseView(object):
         self.context = context
         self.request = request
 
-    def wrap_dict(self, item, item_dict):
-        result = {'links': dict((k, self.request.resource_url(v))
-                                for k, v in item.links.iteritems())}
-        if item_dict:
-            result.update({item.resource_name: item_dict})
-        return result
+    def parse_params(self):
+        if self.request.method in ['POST', 'PUT']:
+            return self.request.POST.mixed()
 
-    def resource_url(self, *elements, **kw):
-        return self.request.resource_url(self.context, *elements, **kw)
+        if self.request.method in ['GET', 'HEAD']:
+            return self.request.GET.mixed()
 
-
-def get_params(request):
-    try:
-        return request.POST.mixed()
-    except Exception:
-        log.debug('Error parsing POST', exc_info=True)
-        raise HTTPBadRequest('Error parsing request parameters')
+        raise NotImplemented('TBD')
 
 
 @view_defaults(context=interfaces.ICollection, renderer='royal')
@@ -52,12 +43,11 @@ class CollectionView(BaseView):
     @view_config(request_method='GET', permission='index')
     def index(self):
         func = self.context.index
-
+        query_params = self.request.GET.mixed()
         if hasattr(self.context, 'index_schema'):
-            params = self.context.index_schema(self.request.GET.mixed())
-            result = func(**params)
+            result = func(**self.context.index_schema(query_params))
         else:
-            result = func(**get_params(self.request))
+            result = func(**query_params)
 
         return result
 
@@ -65,7 +55,7 @@ class CollectionView(BaseView):
     def create(self):
         func = self.context.create
 
-        params = get_params(self.request)
+        params = self.parse_params()
         if hasattr(self.context, 'create_schema'):
             params = self.context.create_schema(params)
 
@@ -85,19 +75,20 @@ class ItemView(BaseView):
                  context=interfaces.IRoot)
     def show(self):
         func = self.context.show
-        params = get_params(self.request)
+        params = self.parse_params()
         return func(**params)
 
     @view_config(request_method='PUT', permission='replace')
     def put(self):
         func = self.context.replace
-        params = get_params(self.request)
+        params = self.parse_params()
         return func(params)
 
     @view_config(request_method='PATCH', permission='update')
     def patch(self):
         func = self.context.update
-        func(get_params(self.request))
+        params = self.parse_params()
+        func(params)
         return self.request.response
 
 
