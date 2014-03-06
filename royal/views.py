@@ -29,6 +29,17 @@ class BaseView(object):
 
     def parse_params(self):
         if self.request.method in ['POST', 'PUT']:
+            if self.request.content_type.startswith('application/json'):
+                try:
+                    parsed = self.request.json_body
+                except ValueError:
+                    raise HTTPBadRequest('Not a json body')
+
+                if isinstance(parsed, dict):
+                    return parsed
+                else:
+                    raise HTTPBadRequest('JSON body is not object')
+
             return self.request.POST.mixed()
 
         if self.request.method in ['GET', 'HEAD']:
@@ -45,9 +56,9 @@ class CollectionView(BaseView):
         func = self.context.index
         query_params = self.request.GET.mixed()
         if hasattr(self.context, 'index_schema'):
-            result = func(**self.context.index_schema(query_params))
+            result = func(self.context.index_schema(query_params))
         else:
-            result = func(**query_params)
+            result = func(query_params)
 
         return result
 
@@ -76,7 +87,7 @@ class ItemView(BaseView):
     def show(self):
         func = self.context.show
         params = self.parse_params()
-        return func(**params)
+        return func(params)
 
     @view_config(request_method='PUT', permission='replace')
     def put(self):

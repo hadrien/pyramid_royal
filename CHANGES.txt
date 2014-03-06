@@ -1,6 +1,11 @@
 Changelog
 =========
 
+Development
+-----------
+
+- Breaking changes: query params are not anymore passed to resources methods
+  via **kwargs but as a dict.
 
 0.6
 ---

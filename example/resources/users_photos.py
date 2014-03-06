@@ -2,13 +2,22 @@ import mimetypes
 
 import royal
 
+from voluptuous import Schema, Required, Coerce, All, Range
+
 from example.model import Photo
 from example.resources import photos
 
 
 class Collection(royal.Collection):
 
-    def index(self, offset=0, limit=10):
+    index_schema = Schema({
+        Required('offset', default=0): All(Coerce(int), Range(min=0)),
+        Required('limit', default=20): All(Coerce(int), Range(min=1, max=50)),
+    })
+
+    def index(self, params):
+        offset = params['offset']
+        limit = params['limit']
         cursor = Photo.get_newests(self.root.db, offset, limit,
                                    author=self.parent.name)
         documents = [photos.Item(str(doc._id), self.root, doc).show()

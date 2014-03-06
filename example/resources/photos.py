@@ -1,12 +1,20 @@
 import royal
 from royal.exceptions import NotFound
+from voluptuous import Schema, Required, Coerce, All, Range
 
 from example.model import Photo
 
 
 class Collection(royal.Collection):
 
-    def index(self, offset, limit):
+    index_schema = Schema({
+        Required('offset', default=0): All(Coerce(int), Range(min=0)),
+        Required('limit', default=20): All(Coerce(int), Range(min=1, max=50)),
+    })
+
+    def index(self, params):
+        offset = params['offset']
+        limit = params['limit']
         cursor = Photo.get_newests(self.root.db, offset, limit)
         query = dict(offset=offset, limit=limit)
         return royal.PaginatedResult(self, cursor, Item, query,
@@ -28,7 +36,7 @@ class Item(royal.Item):
 
         return self.document
 
-    def show(self):
+    def show(self, params=None):
         result = self.load_document()
         author_username = result['author']
         result['href'] = self.url()

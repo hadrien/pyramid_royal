@@ -77,7 +77,7 @@ class Base(object):
 
     @property
     def links(self):
-        _links = {name: cls(name, self).url()
+        _links = {name: {'href': cls(name, self).url()}
                   for name, cls in self.children.iteritems()}
         _links['href'] = self.url()
         return _links
@@ -94,6 +94,9 @@ class Root(Base):
     def __init__(self, request):
         super(Root, self).__init__('', None)
         self.request = request
+
+    def show(self, params=None):
+        return self.links
 
 
 @implementer(IItem)

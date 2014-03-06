@@ -9,11 +9,13 @@ from example.model import User, Photo
 class Collection(royal.Collection):
 
     index_schema = Schema({
-        Required('offset', 0): All(Coerce(int), Range(min=0)),
-        Required('limit', 20): All(Coerce(int), Range(min=1, max=50)),
+        Required('offset', default=0): All(Coerce(int), Range(min=0)),
+        Required('limit', default=20): All(Coerce(int), Range(min=1, max=50)),
     })
 
-    def index(self, offset, limit):
+    def index(self, params):
+        offset = params['offset']
+        limit = params['limit']
         cursor = User.get_newests(self.root.db, offset, limit)
         documents = [Item(user.username, self, user).show() for user in cursor]
         result = {
@@ -47,7 +49,7 @@ class Item(royal.Item):
     def on_traversing(self, key):
         self.load_document()
 
-    def show(self):
+    def show(self, params=None):
         user = self.load_document()
         user['href'] = self.url()
         user['photos'] = {
