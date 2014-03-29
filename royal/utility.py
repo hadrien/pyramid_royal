@@ -75,8 +75,8 @@ class ResourceConfigurator(object):
         intr = config.introspectable(
             category_name=self.introspectable_category_name,
             discriminator=discriminator,
-            title='Resource %s' % resource_path,
-            type_name='resource',
+            title=resource_path,
+            type_name='Resource',
         )
         intr['collection_cls'] = collection_cls
         intr['item_cls'] = item_cls

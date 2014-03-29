@@ -1,11 +1,13 @@
 import logging
 import shutil
 
+from pyramid_mongokit import register
 from example.model import base
 
 log = logging.getLogger(__name__)
 
 
+@register()
 class Photo(base.Document):
     __collection__ = 'photos'
 

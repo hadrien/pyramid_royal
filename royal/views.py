@@ -75,7 +75,11 @@ class CollectionView(BaseView):
         self.request.response.headers['Location'] = item.url()
         self.request.response.status_int = HTTPCreated.code
 
-        return item.show()
+        try:
+            show = item.show
+        except exc.MethodNotAllowed:
+            return {}
+        return show()
 
 
 @view_defaults(context=interfaces.IItem, renderer='royal')

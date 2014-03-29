@@ -1,6 +1,9 @@
 from example.model import base
 
+from pyramid_mongokit import register
 
+
+@register()
 class User(base.Document):
     __collection__ = 'users'
 

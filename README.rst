@@ -1,11 +1,15 @@
+#############
 pyramid_royal
-=============
+#############
 
-Pyramid extension for writing RESTful web applications using traversal.
+.. image:: https://travis-ci.org/hadrien/pyramid_royal.png?branch=master
+   :target: https://travis-ci.org/hadrien/pyramid_royal
+
+.. image:: https://pypip.in/d/pyramid_royal/badge.png
+   :target: https://crate.io/packages/pyramid_royal/
+
+
+Royal is a pyramid extension which eases writing RESTful web applications.
 
 For more information on traversal algorithm, refer to `Pyramid documentation
 <http://docs.pylonsproject.org/projects/pyramid/en/latest/narr/traversal.html>`_
-
-* https://github.com/hadrien/pyramid_royal
-* .. image:: https://travis-ci.org/hadrien/pyramid_royal.png?branch=master
-     :target: https://travis-ci.org/hadrien/pyramid_royal

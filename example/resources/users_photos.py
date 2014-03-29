@@ -15,9 +15,9 @@ class Collection(royal.Collection):
         Required('limit', default=20): All(Coerce(int), Range(min=1, max=50)),
     })
 
-    def index(self, params):
-        offset = params['offset']
-        limit = params['limit']
+    def index(self, query_params):
+        offset = query_params['offset']
+        limit = query_params['limit']
         cursor = Photo.get_newests(self.root.db, offset, limit,
                                    author=self.parent.name)
         documents = [photos.Item(str(doc._id), self.root, doc).show()

@@ -5,14 +5,18 @@ Development
 -----------
 
 - Breaking changes: query params are not anymore passed to resources methods
-  via **kwargs but as a dict.
+  via ``**kwargs`` but as a ``dict``.
+- Add ``renderer_adapter`` decorator to register adapter via ``config.scan``.
+- Add renderer adapter to configuration introspectables under *Renderer
+  adapters* category.
 
 0.6
 ---
 
 - Breaking changes: TBD
 - Move onctuous away in favor of voluptuous
-- Added method tunneling to permit PUT, and DELETE via POST methods
+- Added method tunneling to permit ``PUT``, and ``DELETE`` via ``POST``
+  methods.
 - TBD: adapt how request body is parsed.
 
 
@@ -21,13 +25,11 @@ Development
 
 - Add Base.__getitem__ which gets children from self.children
 
-
 0.5
 ---
 
 - Breaking change: Pages parameters are not anymore page & page_size but offset
   and limit. It is more developer and db friendly.
-
 
 0.2
 ---
