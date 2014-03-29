@@ -9,4 +9,4 @@ nosexcover
 yanc
 webtest
 
-pyramid_mongokit
+pyramid_mongokit >= 0.2-dev0
