@@ -4,11 +4,21 @@ Changelog
 Development
 -----------
 
-- Breaking changes: query params are not anymore passed to resources methods
-  via ``**kwargs`` but as a ``dict``.
+- Breaking changes:
+
+  - Query params are not anymore passed to resources methods
+    via ``**kwargs`` but as a ``dict``. TBD: use a ``multidict``.
+  - Working on return value of ``Collection.create`` method. TBD: Add adapters
+    to permit multiple way of calling resource methods from view and adapt
+    renderering
+
+
 - Add ``renderer_adapter`` decorator to register adapter via ``config.scan``.
 - Add renderer adapter to configuration introspectables under *Renderer
   adapters* category.
+- Add ``add_deserializer`` directive and decorator ``royal.deserializer`` to
+  add deserializers on for specific content_type
+
 
 0.6
 ---
@@ -23,7 +33,7 @@ Development
 0.5.1
 -----
 
-- Add Base.__getitem__ which gets children from self.children
+- Add ``Base.__getitem__`` which gets children from ``self.children``
 
 0.5
 ---

@@ -1,9 +1,17 @@
 from pyramid.events import NewRequest
 
+from royal.renderer import renderer_adapter
 from royal.resource import Root, Collection, Item
+from royal.views import deserializer
 
 
-__all__ = ['Root', 'Collection', 'Item']
+__all__ = [
+    'Collection',
+    'deserializer',
+    'Item',
+    'renderer_adapter',
+    'Root',
+]
 
 
 def includeme(config):

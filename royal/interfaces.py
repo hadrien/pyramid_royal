@@ -1,13 +1,12 @@
-# -*- coding: utf-8 -*-
 from zope.interface import Attribute, Interface
 
 
 class IBase(Interface):
     "Base for all context class."
     __name__ = Attribute('The __name__ attribute should be the name with '
-                         'which a resource’s parent refers to the resource '
+                         'which a resource\'s parent refers to the resource '
                          'via __getitem__.')
-    __parent__ = Attribute('Should be a reference to the resource’s parent '
+    __parent__ = Attribute('Should be a reference to the resource\'s parent '
                            'resource instance in the tree')
 
 

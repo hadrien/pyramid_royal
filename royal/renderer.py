@@ -12,53 +12,43 @@ def includeme(config):
 
     config.registry.json_renderer = JSON()
 
-    config.add_directive('add_renderer_adapter', add_renderer_adapter,
-                         action_wrap=True)
+    config.add_directive('add_renderer_adapter', add_renderer_adapter)
 
     config.scan(__name__)
 
 
 def add_renderer_adapter(config, dotted_name, adapter):
-    config.registry.json_renderer.add_adapter(config.maybe_dotted(dotted_name),
-                                              adapter)
-    if config.introspection:
-        _add_renderer_adapter_introspectable(config, dotted_name, adapter)
 
+    def callback():
+        config.registry.json_renderer.add_adapter(adapted, adapter)
 
-def _add_renderer_adapter_introspectable(config, dotted_name, adapter):
-    category = 'Renderer adapters'
-    introspector = config.introspector
     adapted = config.maybe_dotted(dotted_name)
-    intr = introspector.get(category, adapted)
-    if intr is None:
-        intr = config.introspectable(
-            category_name=category,
-            discriminator=adapted,
-            title=adapted,
-            type_name='',
-        )
+
+    intr = config.introspectable(
+        category_name='Renderer adapters',
+        discriminator=adapted,
+        title=adapted,
+        type_name='',
+    )
     intr['adapter'] = adapter
-    introspector.add(intr)
-    config.action(adapted, introspectables=(intr, ))
+
+    config.action(adapted, callback, introspectables=(intr, ))
 
 
 class renderer_adapter(object):
     """A decorator to add a rendered adapter"""
 
-    def __init__(self, type_or_iface, **settings):
-        self.__dict__.update(settings)
+    def __init__(self, type_or_iface):
         self.type_or_iface = type_or_iface
 
     def __call__(self, callable):
-        settings = self.__dict__.copy()
-        type_or_iface = settings.pop('type_or_iface')
 
         def callback(context, name, ob):
             config = context.config.with_package(info.module)
-            config.add_renderer_adapter(type_or_iface, ob, **settings)
+            config.add_renderer_adapter(self.type_or_iface, ob, **settings)
 
         info = venusian.attach(callable, callback)
-        settings['_info'] = info.codeinfo
+        settings = {'_info': info.codeinfo}
         return callable
 
 

@@ -1,4 +1,6 @@
+import json
 import logging
+from decimal import Decimal
 from functools import wraps
 
 from pyramid.view import view_defaults, view_config
@@ -10,6 +12,7 @@ from pyramid.httpexceptions import (
     HTTPNotFound,
     HTTPMethodNotAllowed,
 )
+import venusian
 
 from royal import exceptions as exc
 from royal import interfaces
@@ -18,7 +21,47 @@ log = logging.getLogger(__name__)
 
 
 def includeme(config):
-    config.scan('royal.views')
+    config.add_directive('add_deserializer', add_deserializer)
+    config.scan(__name__)
+
+
+def add_deserializer(config, content_type, deserializer_func):
+
+    def callback():
+        deserializers = config.registry.setdefault('deserializers', {})
+        deserializers[content_type] = deserializer_func
+
+    intr = config.introspectable(
+        category_name='Request body deserializers',
+        discriminator=content_type,
+        title=content_type,
+        type_name='',
+    )
+    intr['deserializer'] = deserializer_func
+
+    config.action(content_type, callback, introspectables=(intr, ))
+
+
+class deserializer(object):
+
+    def __init__(self, content_type):
+        self.content_type = content_type
+
+    def __call__(self, callable):
+
+        def callback(context, name, callable):
+            config = context.config.with_package(info.module)
+            config.add_deserializer(self.content_type, callback, **settings)
+
+        info = venusian.attach(callable, callback)
+        settings = {'_info': info.codeinfo}
+
+        return callable
+
+
+@deserializer('application/json')
+def deserialize(unicode_body):
+    return json.loads(unicode, parse_float=Decimal)
 
 
 class BaseView(object):
@@ -28,7 +71,12 @@ class BaseView(object):
         self.request = request
 
     def parse_params(self):
+        content_type = self.request.content_type
+        deserializers = self.request.registry['deserializers']
         if self.request.method in ['POST', 'PUT']:
+            if content_type in deserializers:
+                return deserializers[content_type](self.request.body)
+
             if self.request.content_type.startswith('application/json'):
                 try:
                     parsed = self.request.json_body
@@ -75,11 +123,7 @@ class CollectionView(BaseView):
         self.request.response.headers['Location'] = item.url()
         self.request.response.status_int = HTTPCreated.code
 
-        try:
-            show = item.show
-        except exc.MethodNotAllowed:
-            return {}
-        return show()
+        return item
 
 
 @view_defaults(context=interfaces.IItem, renderer='royal')

@@ -1,4 +1,5 @@
 import royal
+
 from royal.exceptions import NotFound
 from voluptuous import Schema, Required, Coerce, All, Range
 
@@ -44,3 +45,8 @@ class Item(royal.Item):
             'href': self.root['users'][author_username].url()
         }
         return result
+
+
+@royal.renderer_adapter(Item)
+def adapt_item(item, request):
+    return item.show()

@@ -1,7 +1,6 @@
 import logging
 
 from pyramid.interfaces import IRootFactory
-from pyramid.util import action_method
 from zope.interface import implementer
 
 from royal import exceptions
@@ -37,13 +36,12 @@ class ResourceConfigurator(object):
     """Internal configurator of royal resources.
     """
 
-    introspectable_category_name = 'Royal resources'
+    intr_category_name = 'Royal resources'
 
     def __init__(self):
         self.definitions = {}
         self._ainfo = None
 
-    @action_method
     def add_resource(self, config, resource_path):
         try:
             parent, name = resource_path.rsplit('.', 1)
@@ -73,7 +71,7 @@ class ResourceConfigurator(object):
         discriminator = ('royal', resource_path)
 
         intr = config.introspectable(
-            category_name=self.introspectable_category_name,
+            category_name=self.intr_category_name,
             discriminator=discriminator,
             title=resource_path,
             type_name='Resource',
@@ -81,7 +79,7 @@ class ResourceConfigurator(object):
         intr['collection_cls'] = collection_cls
         intr['item_cls'] = item_cls
         if parent:
-            intr.relate(self.introspectable_category_name, ('royal', parent))
+            intr.relate(self.intr_category_name, ('royal', parent))
         else:
             intr.relate('root factories', None)
 

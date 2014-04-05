@@ -10,3 +10,4 @@ yanc
 webtest
 
 pyramid_mongokit >= 0.2-dev0
+voluptuous

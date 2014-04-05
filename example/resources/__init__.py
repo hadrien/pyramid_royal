@@ -7,3 +7,4 @@ def includeme(config):
     config.add_resource('users')
     config.add_resource('users.photos')
     config.add_resource('photos')
+    config.scan(__name__)
