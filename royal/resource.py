@@ -20,7 +20,7 @@ def includeme(config):
 class Base(object):
 
     def __init__(self, name, parent):
-        self.__name__ = name
+        self.__name__ = str(name)
         self.__parent__ = parent
         if not hasattr(self, 'children'):
             self.children = {}

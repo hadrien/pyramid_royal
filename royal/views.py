@@ -120,8 +120,9 @@ class CollectionView(BaseView):
 
         item = func(params)
 
-        self.request.response.headers['Location'] = item.url()
-        self.request.response.status_int = HTTPCreated.code
+        if hasattr(item, 'url'):
+            self.request.response.headers['Location'] = item.url()
+            self.request.response.status_int = HTTPCreated.code
 
         return item
 
