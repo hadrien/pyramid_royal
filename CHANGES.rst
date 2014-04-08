@@ -12,13 +12,13 @@ Development
     to permit multiple way of calling resource methods from view and adapt
     renderering
 
-
 - Add ``renderer_adapter`` decorator to register adapter via ``config.scan``.
 - Add renderer adapter to configuration introspectables under *Renderer
   adapters* category.
-- Add ``add_deserializer`` directive and decorator ``royal.deserializer`` to
-  add deserializers on for specific content_type
-
+- Add ``add_deserializer`` config directive and
+  decorator ``royal.deserializer_config`` to add deserializers for specific
+  content_type.
+- Remove decorator ``log_error_dict`` in favor of pyramid_exclog extension.
 
 0.6
 ---

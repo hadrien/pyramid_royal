@@ -48,3 +48,7 @@ class IResourceConfigurator(Interface):
 
     def add_resource(dot_path):
         "Add a resource by its dot notation: 'apps.users' is apps/{id}/users"
+
+
+class IDeserializer(Interface):
+    pass

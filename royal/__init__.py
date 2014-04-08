@@ -2,12 +2,12 @@ from pyramid.events import NewRequest
 
 from royal.renderer import renderer_adapter
 from royal.resource import Root, Collection, Item
-from royal.views import deserializer
+from royal.deserializer import deserializer_config
 
 
 __all__ = [
     'Collection',
-    'deserializer',
+    'deserializer_config',
     'Item',
     'renderer_adapter',
     'Root',
@@ -16,6 +16,7 @@ __all__ = [
 
 def includeme(config):
     config.include('royal.renderer')
+    config.include('royal.deserializer')
     config.include('royal.utility')
     config.include('royal.resource')
     config.include('royal.views')

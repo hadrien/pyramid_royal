@@ -95,7 +95,7 @@ class Root(Base):
         super(Root, self).__init__('', None)
         self.request = request
 
-    def show(self, params=None):
+    def show(self, params):
         return self.links
 
 

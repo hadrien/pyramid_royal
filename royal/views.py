@@ -1,7 +1,4 @@
-import json
 import logging
-from decimal import Decimal
-from functools import wraps
 
 from pyramid.view import view_defaults, view_config
 from pyramid.httpexceptions import (
@@ -12,7 +9,7 @@ from pyramid.httpexceptions import (
     HTTPNotFound,
     HTTPMethodNotAllowed,
 )
-import venusian
+
 
 from royal import exceptions as exc
 from royal import interfaces
@@ -21,47 +18,7 @@ log = logging.getLogger(__name__)
 
 
 def includeme(config):
-    config.add_directive('add_deserializer', add_deserializer)
     config.scan(__name__)
-
-
-def add_deserializer(config, content_type, deserializer_func):
-
-    def callback():
-        deserializers = config.registry.setdefault('deserializers', {})
-        deserializers[content_type] = deserializer_func
-
-    intr = config.introspectable(
-        category_name='Request body deserializers',
-        discriminator=content_type,
-        title=content_type,
-        type_name='',
-    )
-    intr['deserializer'] = deserializer_func
-
-    config.action(content_type, callback, introspectables=(intr, ))
-
-
-class deserializer(object):
-
-    def __init__(self, content_type):
-        self.content_type = content_type
-
-    def __call__(self, callable):
-
-        def callback(context, name, callable):
-            config = context.config.with_package(info.module)
-            config.add_deserializer(self.content_type, callback, **settings)
-
-        info = venusian.attach(callable, callback)
-        settings = {'_info': info.codeinfo}
-
-        return callable
-
-
-@deserializer('application/json')
-def deserialize(unicode_body):
-    return json.loads(unicode, parse_float=Decimal)
 
 
 class BaseView(object):
@@ -69,31 +26,6 @@ class BaseView(object):
     def __init__(self, context, request):
         self.context = context
         self.request = request
-
-    def parse_params(self):
-        content_type = self.request.content_type
-        deserializers = self.request.registry['deserializers']
-        if self.request.method in ['POST', 'PUT']:
-            if content_type in deserializers:
-                return deserializers[content_type](self.request.body)
-
-            if self.request.content_type.startswith('application/json'):
-                try:
-                    parsed = self.request.json_body
-                except ValueError:
-                    raise HTTPBadRequest('Not a json body')
-
-                if isinstance(parsed, dict):
-                    return parsed
-                else:
-                    raise HTTPBadRequest('JSON body is not object')
-
-            return self.request.POST.mixed()
-
-        if self.request.method in ['GET', 'HEAD']:
-            return self.request.GET.mixed()
-
-        raise NotImplemented('TBD')
 
 
 @view_defaults(context=interfaces.ICollection, renderer='royal')
@@ -114,7 +46,7 @@ class CollectionView(BaseView):
     def create(self):
         func = self.context.create
 
-        params = self.parse_params()
+        params = self.request.deserialized_body
         if hasattr(self.context, 'create_schema'):
             params = self.context.create_schema(params)
 
@@ -135,21 +67,26 @@ class ItemView(BaseView):
                  context=interfaces.IRoot)
     def show(self):
         func = self.context.show
-        params = self.parse_params()
+        params = self.request.GET.mixed()
         return func(params)
 
     @view_config(request_method='PUT', permission='replace')
     def put(self):
         func = self.context.replace
-        params = self.parse_params()
+        params = self.request.deserialized_body
         return func(params)
 
     @view_config(request_method='PATCH', permission='update')
     def patch(self):
         func = self.context.update
-        params = self.parse_params()
+        params = self.request.deserialized_body
         func(params)
         return self.request.response
+
+    @view_config(request_method='POST')
+    def post(self):
+        # XXX should we permit POST on Item
+        raise exc.MethodNotAllowed(self, 'POST')
 
 
 @view_config(context=interfaces.IItem, request_method='DELETE',
@@ -162,7 +99,9 @@ def delete(context, request):
 
 
 @view_config(context=exc.MethodNotAllowed, renderer='royal')
-@view_config(context=interfaces.IBase, renderer='royal')
+@view_config(context=interfaces.ICollection, renderer='royal')
+@view_config(context=interfaces.IItem, renderer='royal')
+@view_config(context=interfaces.IRoot, renderer='royal')
 def not_allowed(context, request):
     request.response.status_int = HTTPMethodNotAllowed.code
     return {
@@ -174,16 +113,7 @@ def not_allowed(context, request):
     }
 
 
-def log_error_dict(view_callable):
-    @wraps(view_callable)
-    def wrapper(context, request):
-        result = view_callable(context, request)
-        log.debug('%s: %s', type(context), result, exc_info=True)
-        return result
-    return wrapper
-
-
-@view_config(context=exc.NotFound, renderer='royal', decorator=log_error_dict)
+@view_config(context=exc.NotFound, renderer='royal')
 def item_not_found(context, request):
     request.response.status_int = HTTPNotFound.code
     return {
@@ -192,7 +122,7 @@ def item_not_found(context, request):
     }
 
 
-@view_config(context=exc.Conflict, renderer='royal', decorator=log_error_dict)
+@view_config(context=exc.Conflict, renderer='royal')
 def conflict(context, request):
     request.response.status_int = HTTPConflict.code
     return {
@@ -201,9 +131,8 @@ def conflict(context, request):
     }
 
 
-@view_config(context='voluptuous.MultipleInvalid',
-             renderer='royal', decorator=log_error_dict)
-def invalid_parameters(context, request):
+@view_config(context='voluptuous.MultipleInvalid', renderer='royal')
+def invalid_parameter(context, request):
     request.response.status_int = HTTPBadRequest.code
     return {
         'error': 'invalid_parameters',
@@ -211,18 +140,17 @@ def invalid_parameters(context, request):
     }
 
 
-@view_config(context=exc.BadParameter, renderer='royal',
-             decorator=log_error_dict)
+@view_config(context=exc.BadParameter, renderer='royal')
 def bad_parameter(context, request):
     request.response.status_int = HTTPBadRequest.code
     return {
         'error': 'invalid_parameters',
         'resource': request.resource_url(context.resource),
         'message': '%s="%s"' % (context.name, context.value),
-        }
+    }
 
 
-@view_config(context=Exception, renderer='royal', decorator=log_error_dict)
+@view_config(context=Exception, renderer='royal')
 def exception(context, request):
     request.response.status_int = HTTPInternalServerError.code
     return {

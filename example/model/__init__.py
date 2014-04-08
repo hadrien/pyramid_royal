@@ -1,9 +1,10 @@
 from royal.renderer import renderer_adapter
 
+from example.model import base
 from example.model.user import User
 from example.model.photo import Photo
 
-__all__ = ['Photo', 'User']
+__all__ = ['base', 'Photo', 'User']
 
 
 def includeme(config):

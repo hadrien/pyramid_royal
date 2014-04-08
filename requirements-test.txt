@@ -9,5 +9,5 @@ nosexcover
 yanc
 webtest
 
-pyramid_mongokit >= 0.2-dev0
+pyramid_mongokit >= 0.2
 voluptuous

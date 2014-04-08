@@ -38,7 +38,7 @@ class Collection(royal.Collection):
 
     def create(self, params):
         fs = params['image']
-        author = self.parent.name
+        author = unicode(self.parent.name)
         mime_type = mimetypes.guess_extension(fs.filename)
         doc = Photo.create(self.root.db, author, fs.file, mime_type)
         return photos.Item(str(doc._id), self.root['photos'], doc)

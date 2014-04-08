@@ -8,6 +8,10 @@ class InvalidConfig(Base):
     ""
 
 
+class InternalError(Base):
+    ""
+
+
 class ResourceException(Base):
 
     def __init__(self, resource, *args):
@@ -40,13 +44,13 @@ class MethodNotAllowed(ResourceException):
 
 class BadParameter(ResourceException):
 
-    def __init__(self, resource, name, value):
+    def __init__(self, resource, name, value, msg=''):
         """Raised when bad parameters are provided
 
         :param name: Parameter name
         :param value: Parameter value
         """
-        super(BadParameter, self).__init__(resource, name, value)
+        super(BadParameter, self).__init__(resource, name, value, msg)
 
     @property
     def name(self):
