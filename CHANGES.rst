@@ -4,6 +4,9 @@ Changelog
 Development
 -----------
 
+0.7
+---
+
 - Breaking changes:
 
   - Query params are not anymore passed to resources methods
