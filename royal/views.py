@@ -131,15 +131,6 @@ def conflict(context, request):
     }
 
 
-@view_config(context='voluptuous.MultipleInvalid', renderer='royal')
-def invalid_parameter(context, request):
-    request.response.status_int = HTTPBadRequest.code
-    return {
-        'error': 'invalid_parameters',
-        'message': unicode(context)
-    }
-
-
 @view_config(context=exc.BadParameter, renderer='royal')
 def bad_parameter(context, request):
     request.response.status_int = HTTPBadRequest.code

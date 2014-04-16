@@ -51,4 +51,21 @@ class IResourceConfigurator(Interface):
 
 
 class IDeserializer(Interface):
-    pass
+
+    def add_deserializer(content_type, callable):
+        "Add a deserializer callable for a content type"
+
+    def deserialize_request_body(request):
+        "Deserialize request body according to its content type."
+
+
+class IAdaptableRenderer(Interface):
+
+    def add_adapter(type_or_iface, adapter):
+        """ When an object of the type (or interface) ``type_or_iface`` fails
+        to automatically encode using the serializer, the renderer will use
+        the adapter ``adapter`` to convert it into a serializable object."""
+
+    def __call__(info):
+        """ Returns the encoded string with the content-type as the renderer
+        defined (``application/json`` for a json renderer)."""

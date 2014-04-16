@@ -1,5 +1,7 @@
 from bson import BSON
 from pyramid.config import Configurator
+from pyramid.httpexceptions import HTTPBadRequest
+from pyramid.view import view_config
 
 from royal import deserializer_config
 
@@ -25,3 +27,12 @@ def deserialize_bson(request):
 @deserializer_config('multipart/form-data')
 def deserialize_multipart_form_data(request):
     return request.POST.mixed()
+
+
+@view_config(context='voluptuous.MultipleInvalid', renderer='royal')
+def invalid_parameter(context, request):
+    request.response.status_int = HTTPBadRequest.code
+    return {
+        'error': 'invalid_parameters',
+        'message': unicode(context)
+    }

@@ -2,7 +2,11 @@ import logging
 from collections import OrderedDict
 
 import venusian
-from pyramid.renderers import JSON
+from pyramid.interfaces import IRendererFactory
+from pyramid.renderers import JSON as pyramid_JSON
+from zope.interface import implementer
+
+from royal.interfaces import IAdaptableRenderer
 
 log = logging.getLogger(__name__)
 
@@ -10,17 +14,58 @@ log = logging.getLogger(__name__)
 def includeme(config):
     config.add_renderer('royal', Factory)
 
-    config.registry.json_renderer = JSON()
+    config.registry.registerUtility(JSON())
 
     config.add_directive('add_renderer_adapter', add_renderer_adapter)
 
     config.scan(__name__)
 
 
+@implementer(IRendererFactory)
+class Factory(object):
+    """ Constructor: info will be an oect having the
+    following attributes: name (the renderer name), package
+    (the package that was 'current' at the time the
+    renderer was registered), type (the renderer type
+    name), registry (the current application registry) and
+    settings (the deployment settings dictionary). """
+
+    default_match = 'application/json'
+
+    formatters = None
+
+    def __init__(self, info):
+        self.info = info
+
+        self.formatters = OrderedDict([
+            ('application/json',
+             info.registry.getUtility(IAdaptableRenderer)(info)),
+        ])
+
+    def __call__(self, value, system):
+        """ Call the renderer implementation with the value
+        and the system value passed in as arguments and return
+        the result (a string or unicode oect).  The value is
+        the return value of a view.  The system value is a
+        dictionary containing available system values
+        # (e.g. view, context, and request). """
+        request = system['request']
+        format = request.accept.best_match(self.formatters.keys(),
+                                           default_match=self.default_match)
+        request.response.content_type = format
+        return self.formatters[format](value, system)
+
+
+@implementer(IAdaptableRenderer)
+class JSON(pyramid_JSON):
+    pass
+
+
 def add_renderer_adapter(config, dotted_name, adapter):
 
     def callback():
-        config.registry.json_renderer.add_adapter(adapted, adapter)
+        (config.registry.getUtility(IAdaptableRenderer)
+                        .add_adapter(adapted, adapter))
 
     adapted = config.maybe_dotted(dotted_name)
 
@@ -72,36 +117,3 @@ def adapt_decimal(o, request):
             return str(self.o)
 
     return _number_str(o)
-
-
-class Factory(object):
-    """ Constructor: info will be an oect having the
-    following attributes: name (the renderer name), package
-    (the package that was 'current' at the time the
-    renderer was registered), type (the renderer type
-    name), registry (the current application registry) and
-    settings (the deployment settings dictionary). """
-
-    default_match = 'application/json'
-
-    formatters = None
-
-    def __init__(self, info):
-        self.info = info
-
-        self.formatters = OrderedDict([
-            ('application/json', info.registry.json_renderer(info)),
-        ])
-
-    def __call__(self, value, system):
-        """ Call the renderer implementation with the value
-        and the system value passed in as arguments and return
-        the result (a string or unicode oect).  The value is
-        the return value of a view.  The system value is a
-        dictionary containing available system values
-        # (e.g. view, context, and request). """
-        request = system['request']
-        format = request.accept.best_match(self.formatters.keys(),
-                                           default_match=self.default_match)
-        request.response.content_type = format
-        return self.formatters[format](value, system)
