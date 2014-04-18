@@ -1,0 +1,7 @@
+[run]
+source = pyramid_mongokit
+
+[report]
+omit =
+    */python?.?/*
+    */site-packages/nose/*

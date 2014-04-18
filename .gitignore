@@ -24,3 +24,4 @@ velo/tests/coverage.xml
 coverage.xml
 nosetests.xml
 .DS_Store
+.coveralls.yml

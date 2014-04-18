@@ -7,3 +7,5 @@ install: "pip install -r requirements-test.txt && pip install -e ."
 script:  "python setup.py nosetests"
 services:
   - mongodb
+after_success:
+    - coveralls
