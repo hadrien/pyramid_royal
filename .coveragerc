@@ -1,5 +1,5 @@
 [run]
-source = pyramid_mongokit
+source = royal
 
 [report]
 omit =
