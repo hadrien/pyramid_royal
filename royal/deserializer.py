@@ -97,7 +97,8 @@ def deserialize_json(request):
 
 
 @deserializer_config('application/x-www-form-urlencoded')
+@deserializer_config('multipart/form-data')
 def deserialiaze_form_urlencoded(request):
     if isinstance(request.POST, NoVars):
-        raise HTTPBadRequest('invalid x-www-form-urlencoded body')
+        raise HTTPBadRequest('invalid %s body' % request.content_type)
     return request.POST.mixed()

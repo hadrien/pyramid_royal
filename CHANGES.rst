@@ -4,6 +4,11 @@ Changelog
 Development
 -----------
 
+0.7.1
+-----
+
+- Add a default ``multipart/form-data`` deserializer.
+
 0.7
 ---
 
