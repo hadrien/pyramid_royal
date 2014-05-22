@@ -39,7 +39,7 @@ request.
 A traverser function locates the context by traversing resources tree using any
 existing ``__getitem__`` on the root object and subobjects.
 
-When any of the ``__getitems__`` call raises a ``KeyError`` exception or
+When any of the ``__getitem__`` call raises a ``KeyError`` exception or
 traverser reach the end of request's ``PATH_INFO``, context is found.
 
 Then pyramid's router looks up a view callable using the context.
