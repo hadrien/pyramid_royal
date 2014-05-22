@@ -8,6 +8,8 @@ Development
 -----
 
 - Add a default ``multipart/form-data`` deserializer.
+- No more views on ``voluptuous.MultipleInvalid`` as ``voluptuous`` has been
+  removed from dependencies.
 
 0.7
 ---

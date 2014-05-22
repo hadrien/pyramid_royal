@@ -1,0 +1,8 @@
+# Requirements file for documentation stuff
+
+Sphinx
+sphinxcontrib-httpdomain
+
+# To reload automatically web page
+# livereload 2 break compat
+livereload==1.0.1
