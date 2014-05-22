@@ -27,17 +27,17 @@ Traversal quick overview
    :ref:`traversal <pyramid:traversal_chapter>` chapters in pyramid
    documentation for details.
 
+Using traversal, requesting ``/users/hadrien/photos/`` is treated as dict
+accesses::
+
+   RootFactory(request)['users']['hadrien']['photos']
+
 A root factory object configured using
 :meth:`pyramid.config.Configurator.set_root_factory` is instantiated for each
 request.
 
 A traverser function locates the context by traversing resources tree using any
 existing ``__getitem__`` on the root object and subobjects.
-
-Therefore, requesting a path ``/users/hadrien/photos/`` is treated as dict
-accesses::
-
-   RootFactory(request)['users']['hadrien']['photos']
 
 When any of the ``__getitems__`` call raises a ``KeyError`` exception or
 traverser reach the end of request's ``PATH_INFO``, context is found.
