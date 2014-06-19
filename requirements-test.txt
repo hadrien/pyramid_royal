@@ -6,6 +6,7 @@ coverage
 mock
 nose
 nosexcover
+nose-progressive
 yanc
 webtest
 coveralls

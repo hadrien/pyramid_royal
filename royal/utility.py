@@ -59,8 +59,8 @@ class ResourceConfigurator(object):
         item_cls = getattr(module, 'Item', None)
 
         if not any((collection_cls, item_cls)):
-            raise exceptions.InvalidConfig(
-                'no collection or item class found in %s', module)
+            raise exceptions.InvalidConfig('no collection or item class in %s',
+                                           module)
 
         if collection_cls:
             collection_cls.children = {}
@@ -102,10 +102,12 @@ class ResourceConfigurator(object):
 
     def register_resource(self, config, resource_path):
         definition = self.definitions[resource_path]
+        # get resource definition of parent
         parent_def = (self.definitions[definition.parent]
                       if definition.parent
                       else config.registry.queryUtility(IRootFactory))
 
+        # get resource parent class
         parent_cls = (parent_def.item_cls
                       if hasattr(parent_def, 'item_cls')
                       else parent_def)

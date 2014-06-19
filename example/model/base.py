@@ -10,7 +10,7 @@ class Document(mongokit.Document):
 
     @classmethod
     def get_newests(cls, db, offset, limit, **kwargs):
-        # do not use skip on production
+        # do not use skip on anything on production!
         collection = db[cls.__name__]
         return (
             collection.find(kwargs)

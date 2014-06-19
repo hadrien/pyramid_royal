@@ -31,9 +31,8 @@ class TestBase(unittest.TestCase):
 
     @reify
     def config(self):
-        from example import includeme
         _config = Configurator(settings={})
-        _config.include(includeme)
+        _config.include('example')
         self.addCleanup(delattr, self, 'config')
         return _config
 

@@ -86,15 +86,15 @@ class renderer_adapter(object):
     def __init__(self, type_or_iface):
         self.type_or_iface = type_or_iface
 
-    def __call__(self, callable):
+    def __call__(self, wrapped):
 
         def callback(context, name, ob):
             config = context.config.with_package(info.module)
             config.add_renderer_adapter(self.type_or_iface, ob, **settings)
 
-        info = venusian.attach(callable, callback)
+        info = venusian.attach(wrapped, callback)
         settings = {'_info': info.codeinfo}
-        return callable
+        return wrapped
 
 
 @renderer_adapter('datetime.date')

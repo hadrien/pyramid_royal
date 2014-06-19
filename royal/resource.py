@@ -13,14 +13,14 @@ from royal.interfaces import (
 
 
 def includeme(config):
-    pass
+    config.set_root_factory(Root)
 
 
 @implementer(IBase)
 class Base(object):
 
     def __init__(self, name, parent):
-        self.__name__ = str(name)
+        self.__name__ = unicode(name)
         self.__parent__ = parent
         if not hasattr(self, 'children'):
             self.children = {}

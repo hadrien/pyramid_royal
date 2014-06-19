@@ -4,6 +4,9 @@ Changelog
 Development
 -----------
 
+- Started some documentation.
+- Set default root factory to ``royal.resource.Root``
+
 0.7.1
 -----
 

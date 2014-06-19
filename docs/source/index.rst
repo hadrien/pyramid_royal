@@ -48,4 +48,28 @@ Then pyramid's router looks up a view callable using the context.
 Collections and Items
 =====================
 
-TBD
+.. Note::
+   Refer to :ref:`Creating a Pyramid Project<pyramid:project_narr>` for details
+   on pyramid configuration.
+
+A REST API is a tree of resources accessible via HTTP methods. Here is an example with 3 resources, `user`, `photo` and `user photo`::
+
+   root
+   ├── photos             Collection of photos           /photos
+   │   └── {photo_id}     Photo item                     /photos/123/
+   └── users              Collection of users            /users/
+       └── {user_id}      User item                      /users/hadrien/
+           └── photos     Collection of user's photos    /users/hadrien/photos
+
+
+To configure this tree of resources with royal::
+
+   # example/resource/__init__.py
+
+   def includeme(config):
+      config = config.add_resource('users')
+      config = config.add_resource('users.photos')
+      config = config.add_resource('photos')
+
+
+TBD...
