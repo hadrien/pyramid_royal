@@ -4,10 +4,18 @@ Changelog
 Development
 -----------
 
+0.7.3
+-----
+
 - Started some documentation.
 - Set default root factory to ``royal.resource.Root``
 - Exception view which catches all exception is only added when ``debug=false``
   in application settings.
+
+0.7.2
+-----
+
+* Depends on pyramid without any version spec.
 
 0.7.1
 -----
