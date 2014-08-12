@@ -1,5 +1,6 @@
 import logging
 
+from pyramid.settings import asbool
 from pyramid.view import view_defaults, view_config
 from pyramid.httpexceptions import (
     HTTPCreated,
@@ -19,6 +20,9 @@ log = logging.getLogger(__name__)
 
 def includeme(config):
     config.scan(__name__)
+    in_debug_mode = asbool(config.registry.get('debug', True))
+    if not in_debug_mode:
+        config.add_view(exception, context=Exception, renderer='royal')
 
 
 class BaseView(object):
@@ -141,7 +145,6 @@ def bad_parameter(context, request):
     }
 
 
-@view_config(context=Exception, renderer='royal')
 def exception(context, request):
     request.response.status_int = HTTPInternalServerError.code
     return {

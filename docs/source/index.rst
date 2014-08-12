@@ -73,3 +73,8 @@ To configure this tree of resources with royal::
 
 
 TBD...
+
+Changes
+=======
+
+.. include:: ../../CHANGES.rst

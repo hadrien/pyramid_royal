@@ -26,6 +26,7 @@ class Base(object):
             self.children = {}
 
     def __getitem__(self, key):
+        key = unicode(key)
         self.on_traversing(key)
         return self.children[key](key, self)
 
