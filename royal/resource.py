@@ -61,12 +61,15 @@ class Base(object):
     def root(self):
         return find_root(self)
 
-    def resource_url(self, resource, **query_params):
+    def resource_url(self, resource, request=None, **query_params):
         kw = {'query': query_params}
-        return self.root.request.resource_url(resource, **kw)
+        if request is None:
+            request = self.root.request
+        return request.resource_url(resource, **kw)
 
-    def url(self, **query_params):
-        return self.resource_url(self, **query_params)
+
+    def url(self, request=None, **query_params):
+        return self.resource_url(self, request, **query_params)
 
     @property
     def parent(self):
