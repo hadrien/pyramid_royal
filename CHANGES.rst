@@ -4,6 +4,8 @@ Changelog
 Development
 -----------
 
+- Add update_schema and replace_schema to be symetric with create_schema.
+
 0.7.3
 -----
 
@@ -15,7 +17,7 @@ Development
 0.7.2
 -----
 
-* Depends on pyramid without any version spec.
+- Depends on pyramid without any version spec.
 
 0.7.1
 -----
