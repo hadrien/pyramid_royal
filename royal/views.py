@@ -78,12 +78,20 @@ class ItemView(BaseView):
     def put(self):
         func = self.context.replace
         params = self.request.deserialized_body
+
+        if hasattr(self.context, 'replace_schema'):
+            params = self.context.replace_schema(params)
+
         return func(params)
 
     @view_config(request_method='PATCH', permission='update')
     def patch(self):
         func = self.context.update
         params = self.request.deserialized_body
+
+        if hasattr(self.context, 'update_schema'):
+            params = self.context.update_schema(params)
+
         func(params)
         return self.request.response
 
