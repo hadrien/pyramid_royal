@@ -98,7 +98,7 @@ class ItemView(BaseView):
     @view_config(request_method='POST')
     def post(self):
         # XXX should we permit POST on Item
-        raise exc.MethodNotAllowed(self, 'POST')
+        raise exc.MethodNotAllowed(self.context, 'POST')
 
 
 @view_config(context=interfaces.IItem, request_method='DELETE',

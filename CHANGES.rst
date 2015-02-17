@@ -4,6 +4,8 @@ Changelog
 Development
 -----------
 
+- Fix issue #6: HTTP 500 error when using POST verb on Item resources.
+
 0.7.4
 -----
 
