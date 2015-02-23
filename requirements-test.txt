@@ -13,3 +13,4 @@ coveralls
 
 pyramid_mongokit >= 0.2
 voluptuous
+sqlalchemy >= 0.9
