@@ -7,14 +7,8 @@ from sqlalchemy.orm.collections import MappedCollection
 log = logging.getLogger(__name__)
 
 
-# class LinksMixin(object):
-
-#     @property
-#     def links(self):
-#         links = {name: self.root.request.resource_url(self, name)
-#                  for name in self.children}
-#         links['self'] = self.url()
-#         return links
+def includeme(config):
+    config.scan(__name__)
 
 
 class Collection(royal.Collection):

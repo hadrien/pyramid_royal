@@ -67,7 +67,6 @@ class Base(object):
             request = self.root.request
         return request.resource_url(resource, **kw)
 
-
     def url(self, request=None, **query_params):
         return self.resource_url(self, request, **query_params)
 
@@ -81,10 +80,10 @@ class Base(object):
 
     @property
     def links(self):
-        _links = {name: {'href': cls(name, self).url()}
-                  for name, cls in self.children.iteritems()}
-        _links['href'] = self.url()
-        return _links
+        links = {name: self.root.request.resource_url(self, name)
+                 for name in self.children}
+        links['self'] = self.url()
+        return links
 
     def on_traversing(self, key):
         pass
