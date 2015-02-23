@@ -27,6 +27,7 @@ class Collection(royal.Collection):
 
     def load_entities(self):
         self.entities = self.entity_cls.all()
+        # TODO pagination
 
     def index(self, params):
         if self.entities is None:
