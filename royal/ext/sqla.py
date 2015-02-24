@@ -12,8 +12,8 @@ def includeme(config):
 
 
 class Collection(royal.Collection):
+
     sa_model = None
-    sa_exceptions = None
     entity_cls = None
 
     def __init__(self, name, parent, entities=None):
@@ -39,8 +39,6 @@ class Collection(royal.Collection):
         entity.save()
         try:
             self.sa_model.flush()
-        except self.sa_exceptions.DuplicatedEntity:
-            raise
         except Exception:
             log.exception('create resource=%r params=%r', self, params)
             raise
@@ -53,7 +51,6 @@ class Collection(royal.Collection):
 class Item(royal.Item):
 
     sa_model = None
-    sa_exceptions = None
 
     # In derived Item classes, specify a model class for singular resources
     # that don't belong to a collection. Otherwise, it will be determined from
@@ -116,8 +113,6 @@ class Item(royal.Item):
                 pass
         try:
             self.sa_model.commit()
-        except self.sa_exceptions.DuplicatedEntity:
-            raise
         except Exception:
             log.exception('update resource=%r params=%r', self, params)
             raise
