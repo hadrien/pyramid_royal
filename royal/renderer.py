@@ -100,7 +100,7 @@ class renderer_adapter(object):
 @renderer_adapter('datetime.date')
 @renderer_adapter('datetime.datetime')
 def adapt_datetime(o, request):
-    return o.isoformat()
+    return o.strftime('%Y-%m-%dT%H:%M:%SZ')  # ISO8601 with Zulu marker
 
 
 @renderer_adapter('decimal.Decimal')
