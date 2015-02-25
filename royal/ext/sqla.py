@@ -113,7 +113,7 @@ class Item(royal.Item):
             pk.reverse()
             self.entity = session.query(self.entity_cls).get(pk)
             if self.entity is None:
-                royal.exceptions.NotFound(self)
+                raise royal.exceptions.NotFound(self)
 
         return self.entity
 
@@ -122,7 +122,9 @@ class Item(royal.Item):
         return self
 
     def delete(self):
-        self.load_entity().delete()
+        session = self.SessionWrapper.Session
+        entity = self.load_entity()
+        session.delete(entity)
         self.SessionWrapper.commit()
 
     def update(self, params):
