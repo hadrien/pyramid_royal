@@ -14,25 +14,10 @@ def includeme(config):
 class Collection(royal.Collection):
 
     """
-        SessionWrapper is a thin wrapper around SA Session object,
-        implementing a possibly advanced (e.g better error handling)
-        commit and flush methods.
+        Session is an SA session.
 
-        A simple implementation would be
-
-        class SessionWrapper:
-
-            Session = Session
-
-            @staticmethod
-            def commit():
-                Session.commit()
-
-            @staticmethod
-            def flush():
-                Session.flush()
     """
-    SessionWrapper = None
+    Session = None
 
     """
         entity_cls is an SA entity mapped class.
@@ -49,8 +34,7 @@ class Collection(royal.Collection):
                                                    self.name)
 
     def load_entities(self):
-        session = self.SessionWrapper.Session
-        self.entities = session.query(self.entity_cls).all()
+        self.entities = self.Session.query(self.entity_cls).all()
         # TODO pagination
 
     def index(self, params):
@@ -59,23 +43,22 @@ class Collection(royal.Collection):
         return self
 
     def create(self, params):
-        session = self.SessionWrapper.Session
         entity = self.entity_cls(**params)
-        session.add(entity)
+        self.Session.add(entity)
         try:
-            self.SessionWrapper.flush()
+            self.Session.flush()
         except Exception:
             log.exception('create resource=%r params=%r', self, params)
             raise
         item = self[entity.id]
         item.entity = entity
-        self.SessionWrapper.commit()
+        self.Session.commit()
         return item
 
 
 class Item(royal.Item):
 
-    SessionWrapper = None
+    Session = None
 
     # In derived Item classes, specify a model class for singular resources
     # that don't belong to a collection. Otherwise, it will be determined from
@@ -97,7 +80,6 @@ class Item(royal.Item):
         self.load_entity()
 
     def load_entity(self):
-        session = self.SessionWrapper.Session
         if self.entity is None:
             if self.entity_cls is None:
                 raise royal.exceptions.NotFound(self)
@@ -111,7 +93,7 @@ class Item(royal.Item):
                   and item.name
                   and not isinstance(item, Collection)]
             pk.reverse()
-            self.entity = session.query(self.entity_cls).get(pk)
+            self.entity = self.Session.query(self.entity_cls).get(pk)
             if self.entity is None:
                 raise royal.exceptions.NotFound(self)
 
@@ -122,10 +104,9 @@ class Item(royal.Item):
         return self
 
     def delete(self):
-        session = self.SessionWrapper.Session
         entity = self.load_entity()
-        session.delete(entity)
-        self.SessionWrapper.commit()
+        self.Session.delete(entity)
+        self.Session.commit()
 
     def update(self, params):
         params_copy = params.copy()
@@ -139,7 +120,7 @@ class Item(royal.Item):
             except AttributeError:
                 pass
         try:
-            self.SessionWrapper.commit()
+            self.Session.commit()
         except Exception:
             log.exception('update resource=%r params=%r', self, params)
             raise
