@@ -5,6 +5,7 @@ Development
 -----------
 
 - Fix issue #6: HTTP 500 error when using POST verb on Item resources.
+- Add `presources` script to print all resources declared with royal.
 
 0.7.4
 -----
