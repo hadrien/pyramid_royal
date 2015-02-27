@@ -1,11 +1,11 @@
 from . import CollectionBase, ItemBase
 
-from example.model import User
+from ..model.project import Project
 
 
 class Collection(CollectionBase):
-    entity_cls = User
+    entity_cls = Project
 
 
 class Item(ItemBase):
-    entity_cls = User
+    entity_cls = Project

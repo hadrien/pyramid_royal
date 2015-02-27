@@ -8,6 +8,8 @@ from pyramid.config import Configurator
 from pyramid.decorator import reify
 from pyramid_mongokit import SingleDbConnection
 
+from sqlalchemy.orm import sessionmaker
+
 log = logging.getLogger(__name__)
 
 
@@ -31,7 +33,8 @@ class TestBase(unittest.TestCase):
 
     @reify
     def config(self):
-        _config = Configurator(settings={})
+        from royal.tests import mysql_uri
+        _config = Configurator(settings={'sqlalchemy.url': mysql_uri})
         _config.include('example')
         self.addCleanup(delattr, self, 'config')
         return _config
@@ -47,6 +50,42 @@ class TestBase(unittest.TestCase):
         self.addCleanup(self._db.close)
         self.addCleanup(delattr, self, 'db')
         return self._db.get_db()
+
+    @classmethod
+    def setUpClass(cls):
+        from royal.tests import engine
+        cls.engine = engine
+        cls.Session = sessionmaker()
+
+    def setUp(self):
+        self.connection = self.engine.connect()
+        self.session = self.Session(bind=self.connection)
+
+        try:
+            self.setUpModels()
+            self.session.commit()
+        except:
+            # The tearDown is not run if the setUp crash
+            self.session.rollback()
+            self.session.close()
+            self.connection.close()
+            raise
+
+    def tearDown(self):
+        try:
+            self.tearDownModels()
+            self.session.commit()
+        except:
+            self.session.rollback()
+        finally:
+            self.session.close()
+            self.connection.close()
+
+    def setUpModels(self):
+        pass
+
+    def tearDownModels(self):
+        pass
 
 
 def new_connection():

@@ -1,6 +1,5 @@
 import logging
 
-import royal
 
 from ..model import Session
 
@@ -19,11 +18,6 @@ class ItemBase(SAItem):
 
 
 def includeme(config):
-    config.set_root_factory(Root)
 
     config.add_resource('projects')
     config.scan(__name__)
-
-
-class Root(royal.Root):
-    pass
