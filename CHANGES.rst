@@ -5,6 +5,11 @@ Development
 -----------
 
 - Fix issue #6: HTTP 500 error when using POST verb on Item resources.
+- Breaking changes:
+
+  - `royal.resource:Base` constructor now takes request as third positional
+    argument.
+  - `royal.resource:Base.resource_url` and `Base.url` method signatures change.
 
 0.7.4
 -----
