@@ -1,17 +1,18 @@
 from royal.tests.functional import TestBase
 
 expected = (
-    ("Resource      Pattern             Collection"
-     "                                 Item                           "),
-    ("============= =================== ======================================"
-     "==== ============================== "),
-    ("photos        /photos             example.resources.photos:Collection   "
-     "     example.resources.photos:Item  "),
-    ("users         /users              example.resources.users:Collection    "
-     "     example.resources.users:Item   "),
-    ("users.photos  /users/(id)/photos  "
-     "example.resources.users_photos:Collection                               "
-     "  "),
+    ("Resource         Pattern                Collection                      "
+     "           Item"),
+    ("================ ====================== ================================"
+     "========== ================================="),
+    ("photos           /photos                example.resources.photos:"
+     "Collection        example.resources.photos:Item"),
+    ("users            /users                 example.resources.users:"
+     "Collection         example.resources.users:Item"),
+    ("users.followers  /users/(id)/followers  example.resources.users:"
+     "UserFollowers      example.resources.users:Follower"),
+    ("users.photos     /users/(id)/photos     example.resources.users_photos:"
+     "Collection  "),
     (""),
 )
 

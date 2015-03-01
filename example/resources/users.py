@@ -71,3 +71,13 @@ class Item(royal.Item):
             'href': new_item['photos'].url()
         }
         return user
+
+
+@royal.collection_config('users.followers')
+class UserFollowers(royal.Collection):
+    pass
+
+
+@royal.item_config('users.followers')
+class Follower(Item):
+    pass
