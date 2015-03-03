@@ -1,8 +1,11 @@
+"""Boilerplate code for using royal with SQLAlchemy
+"""
 import logging
 
 from pyramid.location import lineage
-import royal
 from sqlalchemy.orm.collections import MappedCollection
+
+import royal
 
 log = logging.getLogger(__name__)
 
@@ -27,11 +30,6 @@ class Collection(royal.Collection):
         super(Collection, self).__init__(name, parent, request)
         self.entities = entities
 
-    def __repr__(self):
-        return '<%s collection at %s named %r>' % (self.__class__.__name__,
-                                                   id(self),
-                                                   self.name)
-
     def load_entities(self):
         self.entities = self.Session.query(self.entity_cls).all()
         # TODO pagination
@@ -46,12 +44,11 @@ class Collection(royal.Collection):
         self.Session.add(entity)
         try:
             self.Session.flush()
-        except Exception:
+        except:
             log.exception('create resource=%r params=%r', self, params)
             raise
         item = self[entity.id]
         item.entity = entity
-        self.Session.commit()
         return item
 
 
@@ -70,18 +67,8 @@ class Item(royal.Item):
         if self.entity_cls is None and self.parent is not None:
             self.entity_cls = self.parent.entity_cls
 
-    def __repr__(self):
-        return '<%s item at %s named %r>' % (self.__class__.__name__,
-                                             id(self),
-                                             self.name)
-
-    def on_traversing(self, key):
-        self.load_entity()
-
     def load_entity(self):
         if self.entity is None:
-            if self.entity_cls is None:
-                raise royal.exceptions.NotFound(self)
 
             # FIXME Naively assume that entity's PK is the list of resource
             # __name__ in reversed lineage so PK of /users/123/photos/456 is
@@ -105,7 +92,6 @@ class Item(royal.Item):
     def delete(self):
         entity = self.load_entity()
         self.Session.delete(entity)
-        self.Session.commit()
 
     def update(self, params):
         params_copy = params.copy()
@@ -113,16 +99,8 @@ class Item(royal.Item):
         # Ignore parameters that are part of primary key.
         [params_copy.pop(pk.name, '') for pk in entity.__mapper__.primary_key]
         for param in params_copy:
-            try:
-                getattr(entity, param)
+            if hasattr(entity, param):
                 setattr(entity, param, params_copy[param])
-            except AttributeError:
-                pass
-        try:
-            self.Session.commit()
-        except Exception:
-            log.exception('update resource=%r params=%r', self, params)
-            raise
         return entity
 
 

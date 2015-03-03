@@ -1,3 +1,5 @@
+from sqlalchemy.exc import IntegrityError
+
 from royal.tests.functional import TestBase
 
 PR_ID = 3
@@ -7,11 +9,11 @@ PROJECT_NAME = 'TEST_P3'
 class Test(TestBase):
 
     def setUpModels(self):
-        from example.ext.sqla.model.project import Project
+        from example.ext.sqla.model import Project
         self.session.add(Project(id=PR_ID, name=PROJECT_NAME))
 
     def tearDownModels(self):
-        from example.ext.sqla.model.project import Project
+        from example.ext.sqla.model import Project
         self.session.query(Project).delete()
 
     def test_project_index(self):
@@ -51,3 +53,8 @@ class Test(TestBase):
                     'name': u'new_name'}
         result = self.app.get('/projects/%s' % PR_ID).json
         self.assertEqual(result, expected)
+
+    def test_project_create_duplicate(self):
+
+        with self.assertRaises(IntegrityError):
+            self.app.post('/projects', {'name': PROJECT_NAME})

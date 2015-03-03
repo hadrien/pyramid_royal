@@ -1,4 +1,4 @@
-from . import Base
+from .meta import Base
 
 
 class Project(Base):

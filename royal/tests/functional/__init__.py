@@ -14,6 +14,7 @@ log = logging.getLogger(__name__)
 
 
 def setup_package():
+    # import all model class for deferred reflection.
     connection = new_connection()
     setup_example_fixtures(connection)
     connection.close()
@@ -58,6 +59,7 @@ class TestBase(unittest.TestCase):
         cls.Session = sessionmaker()
 
     def setUp(self):
+        self.app  # to load all model entities
         self.connection = self.engine.connect()
         self.session = self.Session(bind=self.connection)
 

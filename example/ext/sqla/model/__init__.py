@@ -1,23 +1,46 @@
+import logging
 
-from sqlalchemy.engine import engine_from_config
+from pyramid.events import subscriber
+from sqlalchemy.exc import InvalidRequestError, DBAPIError
 
-from sqlalchemy.ext.declarative import declarative_base, DeferredReflection
-from sqlalchemy.orm import sessionmaker, scoped_session
+from .meta import Session
+from .project import Project
 
+log = logging.getLogger(__name__)
 
-Session = scoped_session(sessionmaker())
+__all__ = ['Project', 'Session']
 
 
 def includeme(config):
-    engine = engine_from_config(config.registry.settings)
-    Session.configure(bind=engine)
-    Base.metadata.bind = engine
-    Base.prepare(engine)
+    config.include('.meta')
 
 
-class Base(declarative_base(cls=DeferredReflection)):
-    __abstract__ = True
+def commit_session(request):
+    if request.exception:
+        try:
+            Session.rollback()
+        except:
+            log.exception('Session.rollback failed on %s', Session)
+            raise
+        finally:
+            Session.remove()
+    else:
+        try:
+            Session.commit()
 
-    __table_args__ = {
-        'mysql_engine': 'InnoDB',
-        }
+        except InvalidRequestError:
+            log.debug('Nothing to commit for session %s', Session,
+                      exc_info=True)
+
+        except DBAPIError:
+            log.exception('Session.commit failed on %s', Session)
+            Session.rollback()
+            raise
+
+        finally:
+            Session.remove()
+
+
+@subscriber('pyramid.events.NewRequest')
+def on_new_request(event):
+    event.request.add_finished_callback(commit_session)
