@@ -15,7 +15,6 @@ class Collection(royal.Collection):
 
     """
         Session is an SA session.
-
     """
     Session = None
 
@@ -24,8 +23,8 @@ class Collection(royal.Collection):
     """
     entity_cls = None
 
-    def __init__(self, name, parent, entities=None):
-        super(Collection, self).__init__(name, parent)
+    def __init__(self, name, parent, request, entities=None):
+        super(Collection, self).__init__(name, parent, request)
         self.entities = entities
 
     def __repr__(self):
@@ -65,8 +64,8 @@ class Item(royal.Item):
     # the parent resource.
     entity_cls = None
 
-    def __init__(self, name, parent, entity=None):
-        super(Item, self).__init__(name, parent)
+    def __init__(self, name, parent, request, entity=None):
+        super(Item, self).__init__(name, parent, request)
         self.entity = entity
         if self.entity_cls is None and self.parent is not None:
             self.entity_cls = self.parent.entity_cls
@@ -85,7 +84,7 @@ class Item(royal.Item):
                 raise royal.exceptions.NotFound(self)
 
             # FIXME Naively assume that entity's PK is the list of resource
-            # __name__ in reversed lineage so PK of /slots/123/symbols/456 is
+            # __name__ in reversed lineage so PK of /users/123/photos/456 is
             # (123, 456). Should also be adapted to support resources
             # identified by name.
             pk = [item.name for item in lineage(self)

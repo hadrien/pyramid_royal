@@ -14,7 +14,7 @@ from example.ext.sqla.model import Base
 log = logging.getLogger(__name__)
 
 
-mysql_uri = 'mysql+mysqlconnector://test:test@localhost/royal_test_example'
+mysql_uri = 'mysql+mysqlconnector://root@localhost/royal_test_example'
 engine = None
 
 
