@@ -21,14 +21,14 @@ def includeme(config):
 class ResourceDefinition(object):
     def __init__(self, resource_path, collection_cls, item_cls, parent,
                  name):
-        self.resource_path = resource_path
+        self.path = resource_path
         self.collection_cls = collection_cls
         self.item_cls = item_cls
         self.parent = parent
         self.name = name
 
     def __repr__(self):
-        return '<ResourceDefinition(%s)>' % self.resource_path
+        return '<ResourceDefinition(%s)>' % self.path
 
 
 @implementer(IResourceConfigurator)
