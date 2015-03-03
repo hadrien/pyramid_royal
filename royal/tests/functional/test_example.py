@@ -29,8 +29,8 @@ class Test(TestBase):
         result = response.json
         self.assertIn('users', result)
         self.assertIn('photos', result)
-        self.assertEqual('http://localhost/users/', result['users']['href'])
-        self.assertEqual('http://localhost/photos/', result['photos']['href'])
+        self.assertEqual('http://localhost/users', result['users'])
+        self.assertEqual('http://localhost/photos', result['photos'])
 
     def test_users_index(self):
         self._add_users()

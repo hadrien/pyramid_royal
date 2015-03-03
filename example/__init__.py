@@ -16,6 +16,7 @@ def includeme(config):
     config.include('royal')
     config.include('example.model')
     config.include('example.resources')
+    config.include('example.ext.sqla')
     config.scan()
 
 
