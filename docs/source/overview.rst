@@ -45,14 +45,59 @@ A REST API is a tree of resources accessible via HTTP methods. Here is an exampl
            └── photos     Collection of user's photos    /users/hadrien/photos
 
 
-To configure this tree of resources with royal::
+Two ways to configure this tree of resources with royal:
 
-   # example/resource/__init__.py
+   #. **Imperative** using ``config.add_resource``. By convention, directive will
+      look for classes named ``Collection`` and/or ``Item`` in sub modules.
 
-   def includeme(config):
-      config = config.add_resource('users')
-      config = config.add_resource('users.photos')
-      config = config.add_resource('photos')
+      * ``example/resource/__init__.py``::
 
+         def includeme(config):
+            config.add_resource('users')
+            config.add_resource('users.photos')
+            config.add_resource('photos')
 
+      * ``example/resource/users.py``, ``example/resource/users_photos.py`` and
+        ``example/resource/photos.py``::
+
+         import royal
+
+         class Collection(royal.Collection):
+            pass
+
+         class Item(royal.Item):
+            pass
+
+   #. **Declarative** using ``collection_config`` and ``item_config``
+      decorator::
+
+         import royal
+
+         def incudeme(config):
+            config.scan()
+
+         @royal.collection_config('users')
+         class Users(royal.Collection):
+
+            def index(self, params):
+               pass
+
+         @royal.item_config('users')
+         class User(royal.Item):
+
+            def show(self, params):
+               pass
+
+         @royal.collection_config('users.photos')
+         class UserPhotos(royal.Collection):
+            pass
+
+         @royal.item_config('users.photos')
+         @royal.item_config('photos')
+         class Photo(royal.Item):
+            pass
+
+         @royal.collection_config('photos')
+         class Photos(royal.Collection):
+            pass
 TBD...
