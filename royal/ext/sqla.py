@@ -69,7 +69,8 @@ class Item(royal.Item):
 
     def load_entity(self):
         if self.entity is None:
-
+            if self.entity_cls is None:
+                raise royal.exceptions.NotFound(self)
             # FIXME Naively assume that entity's PK is the list of resource
             # __name__ in reversed lineage so PK of /users/123/photos/456 is
             # (123, 456). Should also be adapted to support resources

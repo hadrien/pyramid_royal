@@ -79,5 +79,5 @@ class UserFollowers(royal.Collection):
 
 
 @royal.item_config('users.followers')
-class Follower(Item):
+class Follower(royal.Item):
     pass

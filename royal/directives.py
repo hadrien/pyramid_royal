@@ -97,6 +97,7 @@ def register(config, intr):
     parent = find_parent_intr(config.introspector, intr)
     cls = intr['cls']
     name = intr['name']
+    cls.children = {}
 
     if parent is None:
         # root resource: (/users, /bob)
