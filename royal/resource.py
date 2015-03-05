@@ -19,7 +19,7 @@ def includeme(config):
 @implementer(IBase)
 class Base(object):
 
-    children = {}
+    children = None
 
     def __init__(self, name, parent, request):
         self.__name__ = unicode(name)
@@ -29,7 +29,10 @@ class Base(object):
     def __getitem__(self, key):
         key = unicode(key)
         self.on_traversing(key)
-        return self.children[key](key, self, self.request)
+        try:
+            return self.children[key](key, self, self.request)
+        except TypeError:
+            raise KeyError(key)
 
     def _not_allowed(self, name):
         raise exceptions.MethodNotAllowed(self, name)
@@ -79,8 +82,11 @@ class Base(object):
 
     @property
     def links(self):
-        links = {name: self.resource_url(cls(name, self, self.request))
-                 for name, cls in self.children.iteritems()}
+        links = ({name: self.resource_url(cls(name, self, self.request))
+                  for name, cls in self.children.iteritems()}
+                 if self.children
+                 else {}
+                 )
         links['self'] = self.url()
         return links
 
@@ -112,4 +118,7 @@ class Collection(Base):
         self.on_traversing(key)
         if hasattr(self, 'item_cls'):
             return self.item_cls(key, self, self.request)
-        return self.children[key](key, self, self.request)
+        try:
+            return self.children[key](key, self, self.request)
+        except TypeError:
+            raise KeyError(key)

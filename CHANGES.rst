@@ -3,6 +3,7 @@ Changelog
 
 Development
 -----------
+
 - Add sqlalchemy extension.
 - Change the way links are added to resource representation.
 - Fix issue #6: HTTP 500 error when using POST verb on Item resources.
@@ -13,6 +14,10 @@ Development
   - `royal.resource:Base.resource_url` and `Base.url` method signatures change.
 
 - Add `presources` script to print all resources declared with royal.
+- Add declarative configuration decorators `collection_config` & `item_config`.
+- No more utility class: resource configuration uses pyramid introspectables to
+  store configuration rather than utility internal dict.
+- Move `royal.utility` to ` royal.directives`
 
 0.7.4
 -----

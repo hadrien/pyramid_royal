@@ -6,8 +6,6 @@ coverage
 mock
 nose
 nosexcover
-nose-progressive
-yanc == 0.2.4
 webtest
 coveralls
 

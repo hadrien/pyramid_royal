@@ -8,8 +8,6 @@ from alembic.config import Config
 from sqlalchemy import create_engine
 from sqlalchemy.schema import DropConstraint, MetaData
 
-from example.ext.sqla.model import Base
-
 
 log = logging.getLogger(__name__)
 
@@ -45,5 +43,3 @@ def setupPackage():
         metadata.drop_all()
 
     command.upgrade(alembic_config, 'head')
-
-    Base.prepare(engine)

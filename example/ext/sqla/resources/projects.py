@@ -8,4 +8,4 @@ class Collection(CollectionBase):
 
 
 class Item(ItemBase):
-    entity_cls = Project
+    pass

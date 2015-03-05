@@ -9,7 +9,7 @@ from collections import OrderedDict
 
 from pyramid.paster import bootstrap
 
-from royal.interfaces import IResourceConfigurator
+from royal.directives import category
 
 log = logging.getLogger(__name__)
 
@@ -25,26 +25,25 @@ def main():  # pragma no cover
 
 
 def get_pretty_resource_list(registry):
-    resources_config = registry.getUtility(IResourceConfigurator)
-    definitions = resources_config.definitions
-    resources = OrderedDict()
+    introspector = registry.introspector
+    intr_seq = introspector.get_category(category)
 
-    for path in sorted(definitions.keys()):
-        resource_def = definitions[path]
-        collection_cls = resource_def.collection_cls
-        item_cls = resource_def.item_cls
-        resources[path] = {
-            'name': resource_def.name,
-            'pattern': '/' + path.replace('.', '/(id)/'),
-            'collection': '%s:%s' % (
-                collection_cls.__module__,
-                collection_cls.__name__,
-                ) if collection_cls else None,
-            'item': '%s:%s' % (
-                item_cls.__module__,
-                item_cls.__name__,
-                ) if item_cls else None,
-        }
+    introspectables = sorted([d['introspectable'] for d in intr_seq],
+                             cmp=lambda x, y: cmp(x.title, y.title))
+
+    resources = OrderedDict()
+    for intr in introspectables:
+        if intr.title in resources:
+            resource = resources[intr.title]
+        else:
+            resource = resources[intr.title] = {
+                'name': intr['name'],
+                'pattern': '/' + intr.title.replace('.', '/(id)/'),
+                'collection': None,
+                'item': None,
+            }
+
+        resource[intr.type_name.lower()] = intr['dotted_name']
 
     return format(resources)
 
@@ -86,7 +85,7 @@ def get_formatted_line(column1_len, column2_len, column3_len, column4_len,
     fmt = '{column1:{fill}{align}{column1_len}}'
     fmt += '{column2:{fill}{align}{column2_len}}'
     fmt += '{column3:{fill}{align}{column3_len}}'
-    fmt += '{column4:{fill}{align}{column4_len}}\n'
+    fmt += '{column4:{align}}\n'
     if column3 is None:
         column3 = ''
     if column4 is None:

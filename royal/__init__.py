@@ -1,5 +1,6 @@
 from pyramid.events import NewRequest
 
+from royal.declarative import collection_config, item_config
 from royal.renderer import renderer_adapter
 from royal.resource import Root, Collection, Item
 from royal.deserializer import deserializer_config
@@ -11,13 +12,15 @@ __all__ = [
     'Item',
     'renderer_adapter',
     'Root',
+    'collection_config',
+    'item_config',
 ]
 
 
 def includeme(config):
     config.include('royal.renderer')
     config.include('royal.deserializer')
-    config.include('royal.utility')
+    config.include('royal.directives')
     config.include('royal.resource')
     config.include('royal.views')
 
