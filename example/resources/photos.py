@@ -24,8 +24,8 @@ class Collection(royal.Collection):
 
 class Item(royal.Item):
 
-    def __init__(self, key, parent, document=None):
-        super(Item, self).__init__(key, parent)
+    def __init__(self, key, parent, request, document=None):
+        super(Item, self).__init__(key, parent, request)
         self.document = document
 
     def load_document(self):

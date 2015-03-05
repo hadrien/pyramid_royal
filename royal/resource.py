@@ -19,16 +19,17 @@ def includeme(config):
 @implementer(IBase)
 class Base(object):
 
-    def __init__(self, name, parent):
+    children = {}
+
+    def __init__(self, name, parent, request):
         self.__name__ = unicode(name)
         self.__parent__ = parent
-        if not hasattr(self, 'children'):
-            self.children = {}
+        self.request = request
 
     def __getitem__(self, key):
         key = unicode(key)
         self.on_traversing(key)
-        return self.children[key](key, self)
+        return self.children[key](key, self, self.request)
 
     def _not_allowed(self, name):
         raise exceptions.MethodNotAllowed(self, name)
@@ -61,15 +62,12 @@ class Base(object):
     def root(self):
         return find_root(self)
 
-    def resource_url(self, resource, request=None, **query_params):
+    def resource_url(self, resource, **query_params):
         kw = {'query': query_params}
-        if request is None:
-            request = self.root.request
-        return request.resource_url(resource, **kw)
+        return self.request.resource_url(resource, **kw)
 
-
-    def url(self, request=None, **query_params):
-        return self.resource_url(self, request, **query_params)
+    def url(self, **query_params):
+        return self.resource_url(self, **query_params)
 
     @property
     def parent(self):
@@ -81,10 +79,10 @@ class Base(object):
 
     @property
     def links(self):
-        _links = {name: {'href': cls(name, self).url()}
-                  for name, cls in self.children.iteritems()}
-        _links['href'] = self.url()
-        return _links
+        links = {name: self.resource_url(cls(name, self, self.request))
+                 for name, cls in self.children.iteritems()}
+        links['self'] = self.url()
+        return links
 
     def on_traversing(self, key):
         pass
@@ -96,8 +94,7 @@ class Root(Base):
     request = None
 
     def __init__(self, request):
-        super(Root, self).__init__('', None)
-        self.request = request
+        super(Root, self).__init__('', None, request)
 
     def show(self, params):
         return self.links
@@ -114,5 +111,5 @@ class Collection(Base):
     def __getitem__(self, key):
         self.on_traversing(key)
         if hasattr(self, 'item_cls'):
-            return self.item_cls(key, self)
-        return self.children[key](key, self)
+            return self.item_cls(key, self, self.request)
+        return self.children[key](key, self, self.request)

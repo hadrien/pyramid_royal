@@ -17,7 +17,8 @@ class Collection(royal.Collection):
         offset = params['offset']
         limit = params['limit']
         cursor = User.get_newests(self.root.db, offset, limit)
-        documents = [Item(user.username, self, user).show() for user in cursor]
+        documents = [Item(user.username, self, self.request, user).show()
+                     for user in cursor]
         result = {
             'users': documents,
             'href': self.url(offset=offset, limit=limit),
@@ -35,8 +36,8 @@ class Collection(royal.Collection):
 
 class Item(royal.Item):
 
-    def __init__(self, key, parent, document=None):
-        super(Item, self).__init__(key, parent)
+    def __init__(self, key, parent, request, document=None):
+        super(Item, self).__init__(key, parent, request)
         self.document = document
 
     def load_document(self):
@@ -64,7 +65,7 @@ class Item(royal.Item):
                             new_username=new_username,
                             new_email=new_email)
         Photo.replace_author(self.root.db, self.name, new_username)
-        new_item = Item(new_username, self.parent, user)
+        new_item = Item(new_username, self.parent, self.request, user)
         user['href'] = new_item.url()
         user['photos'] = {
             'href': new_item['photos'].url()

@@ -31,8 +31,16 @@ def includeme(config):
         NewRequest,
         request_methods=['POST'],
     )
-
+    config.add_request_method(is_resource_nested, 'is_nested')
     config.commit()
+
+
+def is_resource_nested(request, resource):
+    """Return True if resource is nested in another resource representation.
+
+    It permits to vary a resource representation.
+    """
+    return request.context not in [resource, resource.parent]
 
 
 class RequestMethodEventPredicate(object):

@@ -20,8 +20,9 @@ class Collection(royal.Collection):
         limit = query_params['limit']
         cursor = Photo.get_newests(self.root.db, offset, limit,
                                    author=self.parent.name)
-        documents = [photos.Item(str(doc._id), self.root, doc).show()
-                     for doc in cursor]
+        documents = [
+            photos.Item(str(doc._id), self.root, self.request, doc).show()
+            for doc in cursor]
         result = {
             'photos': documents,
             'href': self.url(offset=offset, limit=limit),
@@ -41,4 +42,5 @@ class Collection(royal.Collection):
         author = unicode(self.parent.name)
         mime_type = mimetypes.guess_extension(fs.filename)
         doc = Photo.create(self.root.db, author, fs.file, mime_type)
-        return photos.Item(str(doc._id), self.root['photos'], doc)
+        return photos.Item(str(doc._id), self.root['photos'], self.request,
+                           doc)

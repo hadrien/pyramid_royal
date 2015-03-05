@@ -5,7 +5,7 @@ from pyramid.testing import DummyRequest
 class Test(unittest.TestCase):
 
     def check_assertions(self, cls, name, parent=None):
-        b = cls(name, parent)
+        b = cls(name, parent, None)
         if parent is None:
             root = b
         else:
@@ -47,7 +47,7 @@ class Test(unittest.TestCase):
         from royal.exceptions import MethodNotAllowed
         request = DummyRequest()
         root = Root(request)
-        c = Collection('users', root)
+        c = Collection('users', root, None)
         resource = self.check_assertions(Item, 'hadrien', parent=c)
 
         with self.assertRaises(MethodNotAllowed):
