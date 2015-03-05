@@ -1,8 +1,8 @@
 Changelog
 =========
 
-Development
------------
+0.8.1 (2015-03-05)
+------------------
 
 - Add sqlalchemy extension.
 - Change the way links are added to resource representation.
