@@ -7,6 +7,9 @@ Development
 0.8.2 (2015-03-06)
 ------------------
 
+- Fix a bug with 2 items being adjacent in hierarchy. The child item was not
+  registered on the good parent.
+
 0.8.1 (2015-03-05)
 ------------------
 
