@@ -109,7 +109,6 @@ def register(config, intr):
     intr.relate(category, parent.discriminator)
 
     parent_cls = parent['cls']
-
     if _is_item(intr):
         if _is_item(parent):
             # it's like having /user/1/profile but why not
@@ -130,11 +129,21 @@ def register(config, intr):
 
 def find_parent_intr(introspector, intr):
     hierarchy = intr.discriminator[1]
-    try:
-        parent_hierarchy, _ = hierarchy.rsplit('.', 1)
-    except ValueError:
-        return None
-    return introspector.get(
-        category,
-        ('royal', parent_hierarchy),
-        )
+    # parent is at a maximum of 2 levels in hierarchy, i.e.:
+    # users.item.profile.item is a single resource
+    # profile being an item, it has been suffixed with .item
+    # parent_hierarchy is users.item not users.item.profile
+    for i in range(2):
+        try:
+            parent_hierarchy, _ = hierarchy.rsplit('.', 1)
+        except ValueError:
+            return None
+        parent = introspector.get(
+            category,
+            ('royal', parent_hierarchy),
+            )
+        if parent is None:
+            hierarchy = parent_hierarchy
+        else:
+            break
+    return parent
