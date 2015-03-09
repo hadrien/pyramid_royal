@@ -92,8 +92,7 @@ class ItemView(BaseView):
         if hasattr(self.context, 'update_schema'):
             params = self.context.update_schema(params)
 
-        func(params)
-        return self.request.response
+        return func(params)
 
     @view_config(request_method='POST')
     def post(self):
