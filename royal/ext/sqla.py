@@ -67,19 +67,23 @@ class Item(royal.Item):
         if self.entity_cls is None and self.parent is not None:
             self.entity_cls = self.parent.entity_cls
 
+    def _get_primary_key(self):
+        # FIXME Naively assume that entity's PK is the list of resource
+        # __name__ in reversed lineage so PK of /users/123/photos/456 is
+        # (123, 456). Should also be adapted to support resources
+        # identified by name.
+        pk = [item.name for item in lineage(self)
+              if hasattr(item, 'name')
+              and item.name
+              and not isinstance(item, Collection)]
+        pk.reverse()
+        return pk
+
     def load_entity(self):
         if self.entity is None:
             if self.entity_cls is None:
                 raise royal.exceptions.NotFound(self)
-            # FIXME Naively assume that entity's PK is the list of resource
-            # __name__ in reversed lineage so PK of /users/123/photos/456 is
-            # (123, 456). Should also be adapted to support resources
-            # identified by name.
-            pk = [item.name for item in lineage(self)
-                  if hasattr(item, 'name')
-                  and item.name
-                  and not isinstance(item, Collection)]
-            pk.reverse()
+            pk = self._get_primary_key()
             self.entity = self.Session.query(self.entity_cls).get(pk)
             if self.entity is None:
                 raise royal.exceptions.NotFound(self)
@@ -102,7 +106,18 @@ class Item(royal.Item):
         for param in params_copy:
             if hasattr(entity, param):
                 setattr(entity, param, params_copy[param])
-        return entity
+        return self
+
+    def replace(self, params):
+        try:
+            self.load_entity()
+        except royal.exceptions.NotFound:
+            pk_column_names = [column.name for column
+                               in self.entity_cls.__mapper__.primary_key]
+            pk_dict = dict(zip(pk_column_names, self._get_primary_key()))
+            self.entity = self.entity_cls(**pk_dict)
+            self.Session.add(self.entity)
+        return self.update(params)
 
 
 @royal.renderer_adapter(Collection)

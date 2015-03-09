@@ -9,6 +9,7 @@ Development
 
 - Fix a bug with 2 items being adjacent in hierarchy. The child item was not
   registered on the good parent.
+- Add a default implementation in sqla extension for ``Item.replace``.
 
 0.8.1 (2015-03-05)
 ------------------
