@@ -1,8 +1,8 @@
 Changelog
 =========
 
-Development
------------
+0.8.3 (2015-03-10)
+------------------
 
 - Breaking change: Remove ``.parent`` and ``children`` property on
   ``royal.resource.Base``
