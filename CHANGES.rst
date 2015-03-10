@@ -1,8 +1,8 @@
 Changelog
 =========
 
-Development
------------
+0.8.4 (2015-03-10)
+------------------
 
 - Fix ``royal.testing``. 
 
