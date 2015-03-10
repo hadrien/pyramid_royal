@@ -15,11 +15,15 @@ class Collection(royal.Collection):
         Required('limit', default=20): All(Coerce(int), Range(min=1, max=50)),
     })
 
+    @property
+    def user(self):
+        return self.find_item('users')
+
     def index(self, query_params):
         offset = query_params['offset']
         limit = query_params['limit']
         cursor = Photo.get_newests(self.root.db, offset, limit,
-                                   author=self.parent.name)
+                                   author=self.user.name)
         documents = [
             photos.Item(str(doc._id), self.root, self.request, doc).show()
             for doc in cursor]
@@ -39,7 +43,7 @@ class Collection(royal.Collection):
 
     def create(self, params):
         fs = params['image']
-        author = unicode(self.parent.name)
+        author = self.user.name
         mime_type = mimetypes.guess_extension(fs.filename)
         doc = Photo.create(self.root.db, author, fs.file, mime_type)
         return photos.Item(str(doc._id), self.root['photos'], self.request,

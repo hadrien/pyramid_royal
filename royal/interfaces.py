@@ -3,6 +3,12 @@ from zope.interface import Attribute, Interface
 
 class IBase(Interface):
     "Base for all context class."
+
+    request = Attribute('The request object.')
+
+    links = Attribute('A mapping which gives relationship with other '
+                      'resources.')
+
     __name__ = Attribute('The __name__ attribute should be the name with '
                          'which a resource\'s parent refers to the resource '
                          'via __getitem__.')
@@ -12,9 +18,6 @@ class IBase(Interface):
 
 class IRoot(IBase):
     "Root factory"
-    request = Attribute('The request object.')
-    links = Attribute('A mapping which gives relationship with other '
-                      'resources.')
 
 
 class IItem(IBase):
@@ -22,10 +25,10 @@ class IItem(IBase):
     def show(params):
         "GET /items/{id}"
 
-    def update(params):
+    def replace(params):
         "PUT /items/{id}"
 
-    def patch(params):
+    def update(params):
         "PATCH /items/{id}"
 
     def delete():
@@ -34,8 +37,8 @@ class IItem(IBase):
 
 class ICollection(IBase):
 
-    def index(offset, limit, params):
-        "GET /items?offset=0&limit=20"
+    def index(params):
+        "GET /items"
 
     def create(params):
         "POST /items"

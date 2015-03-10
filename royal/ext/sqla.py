@@ -64,8 +64,11 @@ class Item(royal.Item):
     def __init__(self, name, parent, request, entity=None):
         super(Item, self).__init__(name, parent, request)
         self.entity = entity
-        if self.entity_cls is None and self.parent is not None:
-            self.entity_cls = self.parent.entity_cls
+        if self.entity_cls is None:
+            try:
+                self.entity_cls = self.__parent__.entity_cls
+            except AttributeError:
+                pass
 
     def load_entity(self):
         if self.entity is None:
@@ -102,7 +105,7 @@ class Item(royal.Item):
         for param in params_copy:
             if hasattr(entity, param):
                 setattr(entity, param, params_copy[param])
-        return entity
+        return self
 
 
 @royal.renderer_adapter(Collection)

@@ -65,7 +65,7 @@ class Item(royal.Item):
                             new_username=new_username,
                             new_email=new_email)
         Photo.replace_author(self.root.db, self.name, new_username)
-        new_item = Item(new_username, self.parent, self.request, user)
+        new_item = Item(new_username, self.__parent__, self.request, user)
         user['href'] = new_item.url()
         user['photos'] = {
             'href': new_item['photos'].url()

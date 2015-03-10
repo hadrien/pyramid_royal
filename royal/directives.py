@@ -80,7 +80,7 @@ def _new_action(config, resource_path, name, cls, type_name):
     intr['dotted_name'] = '%s:%s' % (cls.__module__, cls.__name__)
 
     # Actions must be taken from top-level resource to leaf after
-    # root_factory has been set at order=0
+    # root_factory is set at order=0
     # let's use order parameter:
     # 'app.user.message' collection & item are respectively at order 5 & 6
     # 'app.user' collection & item are respectively at order 3 & 4
@@ -97,13 +97,15 @@ def register(config, intr):
     parent = find_parent_intr(config.introspector, intr)
     cls = intr['cls']
     name = intr['name']
-    cls.children = {}
+    cls.__children__ = {}
+    cls.__resource_path__ = intr['resource_path']
+    cls.__resource_type__ = intr.type_name
 
     if parent is None:
         # root resource: (/users, /bob)
         root_cls = config.registry.queryUtility(IRootFactory)
         intr.relate('root factories', None)
-        root_cls.children[name] = cls
+        root_cls.__children__[name] = cls
         return
 
     intr.relate(category, parent.discriminator)
@@ -112,7 +114,7 @@ def register(config, intr):
     if _is_item(intr):
         if _is_item(parent):
             # it's like having /user/1/profile but why not
-            parent_cls.children[name] = cls
+            parent_cls.__children__[name] = cls
         else:
             # /users/1, /users/1/photos/123
             parent_cls.item_cls = cls
@@ -124,7 +126,7 @@ def register(config, intr):
                 ' parent: %s' % (cls, parent_cls)
                 )
         # /users/1/photos
-        parent_cls.children[name] = cls
+        parent_cls.__children__[name] = cls
 
 
 def find_parent_intr(introspector, intr):

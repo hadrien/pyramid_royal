@@ -4,6 +4,11 @@ Changelog
 Development
 -----------
 
+- Breaking change: Remove ``.parent`` and ``children`` property on
+  ``royal.resource.Base``
+- Add ``find_item`` and ``find_collection``
+- Update interfaces.
+
 0.8.2 (2015-03-06)
 ------------------
 

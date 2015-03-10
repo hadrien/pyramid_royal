@@ -2,18 +2,20 @@ from pyramid.events import NewRequest
 
 from royal.declarative import collection_config, item_config
 from royal.renderer import renderer_adapter
-from royal.resource import Root, Collection, Item
+from royal.resource import Root, Collection, Item, find_item, find_collection
 from royal.deserializer import deserializer_config
 
 
 __all__ = [
     'Collection',
+    'collection_config',
     'deserializer_config',
+    'find_collection',
+    'find_item',
     'Item',
+    'item_config',
     'renderer_adapter',
     'Root',
-    'collection_config',
-    'item_config',
 ]
 
 
@@ -43,7 +45,7 @@ def is_resource_nested(request, resource):
 
     It permits to vary a resource representation.
     """
-    return request.context not in [resource, resource.parent]
+    return request.context not in [resource, resource.__parent__]
 
 
 class RequestMethodEventPredicate(object):
