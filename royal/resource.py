@@ -1,7 +1,8 @@
 from zope.interface import implementer
 
 from pyramid.decorator import reify
-from pyramid.traversal import find_root
+from pyramid.location import lineage
+from pyramid.traversal import find_root, find_interface
 
 from royal import exceptions
 from royal.interfaces import (
@@ -16,10 +17,30 @@ def includeme(config):
     config.set_root_factory(Root)
 
 
+def _find_resource(resource, resource_path, resource_type):
+    test = lambda arg: (arg.__resource_path__ == resource_path and
+                        arg.__resource_type__ == resource_type)
+
+    for location in lineage(resource):
+        try:
+            if test(location):
+                return location
+        except AttributeError:
+            continue
+
+
+def find_collection(resource, resource_path):
+    return _find_resource(resource, resource_path, 'Collection')
+
+
+def find_item(resource, resource_path):
+    return _find_resource(resource, resource_path, 'Item')
+
+
 @implementer(IBase)
 class Base(object):
 
-    children = None
+    __children__ = None
 
     def __init__(self, name, parent, request):
         self.__name__ = unicode(name)
@@ -30,7 +51,7 @@ class Base(object):
         key = unicode(key)
         self.on_traversing(key)
         try:
-            return self.children[key](key, self, self.request)
+            return self.__children__[key](key, self, self.request)
         except TypeError:
             raise KeyError(key)
 
@@ -65,6 +86,15 @@ class Base(object):
     def root(self):
         return find_root(self)
 
+    def find_interface(self, interface):
+        return find_interface(self, interface)
+
+    def find_collection(self, resource_path):
+        return find_collection(self, resource_path)
+
+    def find_item(self, resource_path):
+        return find_item(self, resource_path)
+
     def resource_url(self, resource, **query_params):
         kw = {'query': query_params}
         return self.request.resource_url(resource, **kw)
@@ -73,18 +103,14 @@ class Base(object):
         return self.resource_url(self, **query_params)
 
     @property
-    def parent(self):
-        return self.__parent__
-
-    @property
     def name(self):
         return self.__name__
 
     @property
     def links(self):
         links = ({name: self.resource_url(cls(name, self, self.request))
-                  for name, cls in self.children.iteritems()}
-                 if self.children
+                  for name, cls in self.__children__.iteritems()}
+                 if self.__children__
                  else {}
                  )
         links['self'] = self.url()
@@ -96,7 +122,7 @@ class Base(object):
 
 @implementer(IRoot)
 class Root(Base):
-    children = {}
+    __children__ = {}
     request = None
 
     def __init__(self, request):
@@ -116,9 +142,7 @@ class Collection(Base):
 
     def __getitem__(self, key):
         self.on_traversing(key)
-        if hasattr(self, 'item_cls'):
-            return self.item_cls(key, self, self.request)
         try:
-            return self.children[key](key, self, self.request)
-        except TypeError:
+            return self.item_cls(key, self, self.request)
+        except AttributeError:
             raise KeyError(key)
