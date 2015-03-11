@@ -82,18 +82,6 @@ class Item(royal.Item):
         pk.reverse()
         return pk
 
-    def _get_primary_key(self):
-        # FIXME Naively assume that entity's PK is the list of resource
-        # __name__ in reversed lineage so PK of /users/123/photos/456 is
-        # (123, 456). Should also be adapted to support resources
-        # identified by name.
-        pk = [item.name for item in lineage(self)
-              if hasattr(item, 'name')
-              and item.name
-              and not isinstance(item, Collection)]
-        pk.reverse()
-        return pk
-
     def load_entity(self):
         if self.entity is None:
             if self.entity_cls is None:
