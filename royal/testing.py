@@ -1,18 +1,25 @@
-import functools
-
-
-class _DummyResourceBase(object):
-
-    def __init__(self, name, parent, request, resource_path, resource_type,
-                 **kw):
-        self.__name__ = self.name = name
+class DummyResourceBase(dict):
+    def __init__(self, name, parent, request,
+                 resource_path, resource_type,
+                 **kwargs):
+        self.__name__ = name
         self.__parent__ = parent
         self.__resource_path__ = resource_path
         self.__resource_type__ = resource_type
-        self.__dict__.update(kw)
+        self.name = name
+        self.__dict__.update(kwargs)
 
 
-DummyCollection = functools.partial(_DummyResourceBase,
-                                    resource_type='Collection')
+class DummyCollection(DummyResourceBase):
+    def __init__(self, name, parent, request, resource_path, **kwargs):
+        super(DummyCollection, self).__init__(
+            name, parent, request,
+            resource_path, resource_type='Collection',
+            **kwargs)
 
-DummyItem = functools.partial(_DummyResourceBase, resource_type='Item')
+class DummyItem(DummyResourceBase):
+    def __init__(self, name, parent, request, resource_path, **kwargs):
+        super(DummyItem, self).__init__(
+            name, parent, request,
+            resource_path, resource_type='Item',
+            **kwargs)

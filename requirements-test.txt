@@ -9,6 +9,7 @@ nosexcover
 webtest
 coveralls
 
+pymongo < 3.0
 pyramid_mongokit >= 0.2
 voluptuous
 sqlalchemy >= 0.9
