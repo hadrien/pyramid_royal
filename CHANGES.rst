@@ -7,6 +7,8 @@ Development
 0.8.6 (2015-04-15)
 ------------------
 
+- Make dummy testing resources derive from dict.
+
 0.8.5 (2015-03-11)
 ------------------
 
