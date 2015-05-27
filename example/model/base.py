@@ -35,3 +35,8 @@ class Document(mongokit.Document):
             _id = ObjectId(_id)
         collection = db[cls.__name__]
         return collection.find_one({_id: _id})
+
+    @classmethod
+    def delete_one(cls, db, **kw):
+        collection = db[cls.__collection__]
+        return collection.remove(kw, multi=False)

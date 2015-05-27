@@ -72,6 +72,11 @@ class Item(royal.Item):
         }
         return user
 
+    def delete(self):
+        result = User.delete_one(self.root.db, username=self.name)
+        if result and result['ok'] != 1:
+            raise NotFound(self)
+
 
 @royal.collection_config('users.followers')
 class UserFollowers(royal.Collection):
