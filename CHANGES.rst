@@ -4,6 +4,8 @@ Changelog
 Development
 -----------
 
+- Make DELETE method return 204 No Content
+
 0.8.6 (2015-04-15)
 ------------------
 

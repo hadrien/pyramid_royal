@@ -4,6 +4,7 @@ from pyramid.settings import asbool
 from pyramid.view import view_defaults, view_config
 from pyramid.httpexceptions import (
     HTTPCreated,
+    HTTPNoContent,
     HTTPConflict,
     HTTPBadRequest,
     HTTPInternalServerError,
@@ -106,7 +107,7 @@ class ItemView(BaseView):
              permission='delete', renderer='royal')
 def delete(context, request):
     context.delete()
-    return {}
+    return HTTPNoContent()
 
 
 @view_config(context=exc.MethodNotAllowed, renderer='royal')
