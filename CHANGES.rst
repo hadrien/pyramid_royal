@@ -4,6 +4,8 @@ Changelog
 Development
 -----------
 
+- Permit method override for GET.
+
 0.8.7 (2015-08-05)
 ------------------
 

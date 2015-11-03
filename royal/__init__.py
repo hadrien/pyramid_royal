@@ -62,7 +62,7 @@ class RequestMethodEventPredicate(object):
 
 
 def override_request_method(event):
-    methods = ['PUT', 'DELETE']
+    methods = ['GET', 'PUT', 'DELETE']
     override = (
         event.request.headers.get('X-HTTP-Method-Override') or
         event.request.POST.get('_method', '').upper()
