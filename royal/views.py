@@ -34,7 +34,7 @@ class BaseView(object):
 
 
 @view_defaults(context=interfaces.ICollection, renderer='royal')
-class CollectionView(BaseView):
+class Collection(BaseView):
 
     @view_config(request_method='GET', permission='index')
     def index(self):
@@ -57,8 +57,21 @@ class CollectionView(BaseView):
 
         item = func(params)
 
-        if hasattr(item, 'url'):
-            self.request.response.headers['Location'] = item.url()
+        try:
+            url = item.url
+        except AttributeError:
+            try:
+                url = item['url']
+            except (KeyError, TypeError):
+                url = False
+        else:
+            try:
+                url = url()
+            except TypeError:
+                pass
+
+        if url:
+            self.request.response.headers['Location'] = url
             self.request.response.status_int = HTTPCreated.code
 
         return item
